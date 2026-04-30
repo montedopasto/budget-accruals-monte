@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Budget OS</title>
+<title>Budget OS Premium</title>
 
 <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,11 +17,13 @@ body{
     background:#f1f5f9;
 }
 
+/* LAYOUT */
 .app{
     display:flex;
     height:100vh;
 }
 
+/* SIDEBAR */
 .sidebar{
     width:260px;
     background:linear-gradient(180deg,#4f46e5,#3730a3);
@@ -46,50 +48,55 @@ body{
     background:rgba(255,255,255,0.1);
 }
 
+/* MAIN */
 .main{
     flex:1;
     padding:25px;
     overflow:auto;
 }
 
-.top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
-}
-
+/* GRID */
 .grid{
     display:grid;
     grid-template-columns:repeat(3,1fr);
     gap:20px;
 }
 
+/* CARD */
 .card{
     background:white;
     border-radius:16px;
     padding:20px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.05);
+    box-shadow:0 8px 20px rgba(0,0,0,0.05);
 }
 
+/* BIG */
 .big{
     grid-column:span 2;
 }
 
+/* VALUE */
 .value{
-    font-size:26px;
+    font-size:28px;
     font-weight:700;
 }
 
+/* HISTORY */
 .mov{
     display:flex;
     justify-content:space-between;
-    margin:10px 0;
+    margin:8px 0;
 }
 
-.despesa{color:#dc2626}
-.accrual{color:#2563eb}
+.despesa{color:#ef4444}
+.accrual{color:#3b82f6}
 
+/* CHART FIX */
+.chart-container{
+    height:260px;
+}
+
+/* FORM */
 input{
     width:100%;
     padding:10px;
@@ -105,15 +112,9 @@ button{
     background:#16a34a;
     color:white;
     border-radius:8px;
-    cursor:pointer;
 }
 
 .hidden{display:none}
-
-canvas{
-    width:100%!important;
-    height:250px!important;
-}
 
 </style>
 
@@ -133,203 +134,180 @@ canvas{
 
 <div class="main">
 
-<div class="top">
-    <h2>Dashboard</h2>
-    <div id="user"></div>
-</div>
+<h2 id="user"></h2>
 
 <div id="dashboard">
 
 <div class="grid">
 
 <div class="card">
-    Budget
-    <div class="value" id="budget">0€</div>
+Budget
+<div class="value" id="budget">0€</div>
 </div>
 
 <div class="card">
-    Despesas
-    <div class="value" id="despesasTotal">0€</div>
+Despesas
+<div class="value" id="despesasTotal">0€</div>
 </div>
 
 <div class="card">
-    Accruals
-    <div class="value" id="accrualTotal">0€</div>
+Accruals
+<div class="value" id="accrualTotal">0€</div>
 </div>
 
 <div class="card big">
-    <b>Movimentos</b>
-    <div id="historico"></div>
+<b>Movimentos</b>
+<div id="historico"></div>
 </div>
 
 <div class="card">
-    Diferença
-    <div class="value" id="diferenca">0€</div>
+Diferença
+<div class="value" id="diferenca">0€</div>
 </div>
 
 <div class="card big">
-    <b>Despesas vs Accruals</b>
-    <canvas id="chart1"></canvas>
+<b>Comparação</b>
+<div class="chart-container">
+<canvas id="chart1"></canvas>
+</div>
 </div>
 
 <div class="card">
-    <b>Distribuição</b>
-    <canvas id="chart2"></canvas>
+<b>Distribuição</b>
+<div class="chart-container">
+<canvas id="chart2"></canvas>
+</div>
+</div>
+
 </div>
 
 </div>
 
 </div>
 
-<div id="despesas" class="hidden">
-<div class="card">
-    <h3>Nova Despesa</h3>
-    <input id="fornDespesa" placeholder="Fornecedor">
-    <input id="valorDespesa" type="number" placeholder="Valor">
-    <button onclick="criarDespesa()">Guardar</button>
-</div>
-</div>
-
-<div id="accruals" class="hidden">
-<div class="card">
-    <h3>Novo Accrual</h3>
-    <input id="fornAcc" placeholder="Fornecedor">
-    <input id="valorAcc" type="number" placeholder="Valor">
-    <button onclick="criarAccrual()">Guardar</button>
-</div>
-</div>
-
-</div>
 </div>
 
 <script>
 
-const clientId = "84a548f9-d082-4e9b-b639-1b34432df8c8";
-const tenantId = "ee417351-ea90-41e0-9147-5ea6ab38ea49";
-const siteId = "montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a,d1a6f091-93b5-4454-b6e2-809ad4e4d73a";
+const clientId="84a548f9-d082-4e9b-b639-1b34432df8c8";
+const tenantId="ee417351-ea90-41e0-9147-5ea6ab38ea49";
+const siteId="montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a,d1a6f091-93b5-4454-b6e2-809ad4e4d73a";
 
 let userEmail="";
-let chart1, chart2;
+let chart1,chart2;
 
-const msalInstance = new msal.PublicClientApplication({
-    auth:{clientId,authority:`https://login.microsoftonline.com/${tenantId}`,redirectUri:window.location.origin}
+const msalInstance=new msal.PublicClientApplication({
+auth:{clientId,authority:`https://login.microsoftonline.com/${tenantId}`,redirectUri:window.location.origin}
 });
 
-function show(tab){
-    ["dashboard","despesas","accruals"].forEach(t=>document.getElementById(t).classList.add("hidden"));
-    document.getElementById(tab).classList.remove("hidden");
-}
+function show(tab){}
 
 async function init(){
-    const acc = msalInstance.getAllAccounts();
-    if(acc.length===0){
-        const res = await msalInstance.loginPopup({scopes:["User.Read","Sites.ReadWrite.All"]});
-        userEmail = res.account.username;
-    }else{
-        userEmail = acc[0].username;
-    }
-    document.getElementById("user").innerText = userEmail;
-    load();
+
+const acc=msalInstance.getAllAccounts();
+
+if(acc.length===0){
+const res=await msalInstance.loginPopup({scopes:["User.Read","Sites.ReadWrite.All"]});
+userEmail=res.account.username;
+}else{
+userEmail=acc[0].username;
+}
+
+document.getElementById("user").innerText=userEmail;
+load();
 }
 
 async function token(){
-    const acc = msalInstance.getAllAccounts()[0];
-    const res = await msalInstance.acquireTokenSilent({scopes:["User.Read","Sites.ReadWrite.All"],account:acc});
-    return res.accessToken;
-}
-
-async function criarDespesa(){
-    const t = await token();
-    await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/items`,{
-        method:"POST",
-        headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
-        body:JSON.stringify({fields:{Title:fornDespesa.value,Fornecedor:fornDespesa.value,Valor:parseFloat(valorDespesa.value),ColaboradorEmail:userEmail}})
-    });
-    load();
-}
-
-async function criarAccrual(){
-    const t = await token();
-    await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items`,{
-        method:"POST",
-        headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
-        body:JSON.stringify({fields:{Title:fornAcc.value,Fornecedor:fornAcc.value,ValorEstimado:parseFloat(valorAcc.value),ColaboradorEmail:userEmail}})
-    });
-    load();
+const acc=msalInstance.getAllAccounts()[0];
+const res=await msalInstance.acquireTokenSilent({scopes:["User.Read","Sites.ReadWrite.All"],account:acc});
+return res.accessToken;
 }
 
 async function load(){
 
-    const t = await token();
+const t=await token();
 
-    let despesas=0, accruals=0, movimentos=[];
+let despesas=0,accruals=0,mov=[];
 
-    const acc = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
-    const da = await acc.json();
+const a=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
+const da=await a.json();
 
-    if(da.value){
-        da.value.forEach(i=>{
-            const f=i.fields||{};
-            if(f.ColaboradorEmail!==userEmail)return;
-            const v=parseFloat(f.ValorEstimado)||0;
-            accruals+=v;
-            movimentos.push({tipo:"Accrual",fornecedor:f.Fornecedor,valor:v,data:new Date(i.createdDateTime)});
-        });
-    }
+if(da.value){
+da.value.forEach(i=>{
+const f=i.fields||{};
+if(f.ColaboradorEmail!==userEmail)return;
+const v=parseFloat(f.ValorEstimado)||0;
+accruals+=v;
+mov.push({tipo:"Accrual",fornecedor:f.Fornecedor,valor:v,data:new Date(i.createdDateTime)});
+});
+}
 
-    const d = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
-    const dd = await d.json();
+const d=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
+const dd=await d.json();
 
-    if(dd.value){
-        dd.value.forEach(i=>{
-            const f=i.fields||{};
-            if(f.ColaboradorEmail!==userEmail)return;
-            const v=parseFloat(f.Valor)||0;
-            despesas+=v;
-            movimentos.push({tipo:"Despesa",fornecedor:f.Fornecedor,valor:v,data:new Date(i.createdDateTime)});
-        });
-    }
+if(dd.value){
+dd.value.forEach(i=>{
+const f=i.fields||{};
+if(f.ColaboradorEmail!==userEmail)return;
+const v=parseFloat(f.Valor)||0;
+despesas+=v;
+mov.push({tipo:"Despesa",fornecedor:f.Fornecedor,valor:v,data:new Date(i.createdDateTime)});
+});
+}
 
-    const budget=1000;
+const budget=1000;
 
-    document.getElementById("budget").innerText=budget+"€";
-    document.getElementById("despesasTotal").innerText=despesas+"€";
-    document.getElementById("accrualTotal").innerText=accruals+"€";
-    document.getElementById("diferenca").innerText=(budget-despesas-accruals)+"€";
+document.getElementById("budget").innerText=budget+"€";
+document.getElementById("despesasTotal").innerText=despesas+"€";
+document.getElementById("accrualTotal").innerText=accruals+"€";
+document.getElementById("diferenca").innerText=(budget-despesas-accruals)+"€";
 
-    movimentos.sort((a,b)=>b.data-a.data);
+mov.sort((a,b)=>b.data-a.data);
 
-    document.getElementById("historico").innerHTML = movimentos.map(m=>`
-        <div class="mov">
-            <div>${m.fornecedor}</div>
-            <div class="${m.tipo==='Despesa'?'despesa':'accrual'}">
-                ${m.tipo==='Despesa'?'-':'+'}${m.valor}€
-            </div>
-        </div>
-    `).join("");
+document.getElementById("historico").innerHTML=mov.map(m=>`
+<div class="mov">
+<div>${m.fornecedor}</div>
+<div class="${m.tipo==='Despesa'?'despesa':'accrual'}">
+${m.tipo==='Despesa'?'-':'+'}${m.valor}€
+</div>
+</div>`).join("");
 
-    if(chart1) chart1.destroy();
-    if(chart2) chart2.destroy();
+/* CHARTS */
 
-    chart1 = new Chart(document.getElementById("chart1"),{
-        type:"bar",
-        data:{
-            labels:["Despesas","Accruals"],
-            datasets:[{
-                data:[despesas,accruals]
-            }]
-        }
-    });
+if(chart1) chart1.destroy();
+if(chart2) chart2.destroy();
 
-    chart2 = new Chart(document.getElementById("chart2"),{
-        type:"doughnut",
-        data:{
-            labels:["Despesas","Accruals"],
-            datasets:[{
-                data:[despesas,accruals]
-            }]
-        }
-    });
+chart1=new Chart(document.getElementById("chart1"),{
+type:"bar",
+data:{
+labels:["Despesas","Accruals"],
+datasets:[{
+data:[despesas,accruals],
+backgroundColor:["#ef4444","#3b82f6"],
+borderRadius:10
+}]
+},
+options:{
+responsive:true,
+plugins:{legend:{display:false}}
+}
+});
+
+chart2=new Chart(document.getElementById("chart2"),{
+type:"doughnut",
+data:{
+labels:["Despesas","Accruals"],
+datasets:[{
+data:[despesas,accruals],
+backgroundColor:["#ef4444","#3b82f6"]
+}]
+},
+options:{
+cutout:"70%",
+plugins:{legend:{position:"bottom"}}
+}
+});
+
 }
 
 init();
