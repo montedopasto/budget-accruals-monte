@@ -463,8 +463,14 @@ async function token(){
         return res.accessToken;
 
     }catch(e){
-        console.warn("Token silent falhou");
-        return null;
+
+        console.warn("Silent falhou → abrir popup");
+
+        const res = await msalInstance.acquireTokenPopup({
+            scopes:["User.Read","Sites.ReadWrite.All"]
+        });
+
+        return res.accessToken;
     }
 }
 
