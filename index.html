@@ -456,16 +456,10 @@ async function token(){
 
         return res.accessToken;
 
-    }catch(e){
-
-        console.warn("Token silent falhou, fallback popup");
-
-        const res = await msalInstance.acquireTokenPopup({
-            scopes:["User.Read","Sites.ReadWrite.All"]
-        });
-
-        return res.accessToken;
-    }
+   catch(e){
+    console.warn("Token silent falhou");
+    return null;
+}
 }
 
 async function addDespesa(){
