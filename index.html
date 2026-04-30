@@ -2,134 +2,48 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Budget & Accruals</title>
+<title>Budget OS</title>
 
 <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
 
 <style>
 
+*{box-sizing:border-box}
+
 body{
     margin:0;
-    font-family:system-ui;
-    background:#f4f6f9;
+    font-family:Inter, system-ui;
+    background:#f1f5f9;
 }
 
 /* SIDEBAR */
 .sidebar{
-    width:220px;
-    height:100vh;
-    background:#2f9e44;
-    color:white;
     position:fixed;
-    padding:20px;
+    width:240px;
+    height:100vh;
+    background:linear-gradient(180deg,#16a34a,#15803d);
+    color:white;
+    padding:25px;
 }
 
-.sidebar h2{
-    margin-top:0;
+.logo{
+    font-size:22px;
+    font-weight:600;
+    margin-bottom:40px;
 }
 
-.sidebar div{
+.menu div{
     margin:15px 0;
+    opacity:.9;
     cursor:pointer;
 }
 
 /* HEADER */
 .header{
-    margin-left:220px;
-    height:60px;
-    background:#ffffff;
+    margin-left:240px;
+    height:70px;
+    background:white;
     display:flex;
     align-items:center;
-    padding:0 20px;
-    box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* CONTENT */
-.content{
-    margin-left:220px;
-    padding:20px;
-}
-
-/* CARDS */
-.cards{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:20px;
-}
-
-.card{
-    background:white;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.08);
-}
-
-.card h3{
-    margin:0 0 10px 0;
-}
-
-/* LISTA */
-.lista{
-    margin-top:20px;
-}
-
-.item{
-    background:white;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:10px;
-}
-
-</style>
-
-</head>
-<body>
-
-<div class="sidebar">
-    <h2>💰 Budget</h2>
-    <div>Visão geral</div>
-    <div>Accruals</div>
-</div>
-
-<div class="header">
-    <b>Dashboard</b>
-</div>
-
-<div class="content">
-
-    <div class="cards">
-
-        <div class="card">
-            <h3>Total Accruals</h3>
-            <p id="total">0€</p>
-        </div>
-
-        <div class="card">
-            <h3>Este mês</h3>
-            <p id="mesAtual">0€</p>
-        </div>
-
-        <div class="card">
-            <h3>Pendentes</h3>
-            <p id="pendentes">0€</p>
-        </div>
-
-        <div class="card">
-            <h3>Registos</h3>
-            <p id="totalRegistos">0</p>
-        </div>
-
-    </div>
-
-    <div class="lista" id="lista"></div>
-
-</div>
-
-<script>
-
-// (mantemos o teu código MSAL e funções depois)
-
-</script>
-
-</body>
-</html>
+    justify-content:space-between;
+    padding:0 30
