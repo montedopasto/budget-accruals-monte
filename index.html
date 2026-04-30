@@ -175,7 +175,7 @@ async function init(){
 
     if(acc.length===0){
         const res = await msalInstance.loginPopup({
-            scopes:["User.Read"]
+            scopes:["User.Read","Sites.ReadWrite.All"]
         });
         userEmail = res.account.username;
     }else{
