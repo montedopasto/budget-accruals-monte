@@ -240,8 +240,46 @@ async function token(){
 
     return res.accessToken;
 }
-function criarAccrual(){
-    alert("Depois ligamos ao SharePoint");
+async function criarAccrual(){
+
+    const fornecedor = document.getElementById("fornAcc").value;
+    const valor = parseFloat(document.getElementById("valorAcc").value);
+
+    if(!fornecedor || !valor){
+        alert("Preenche os campos");
+        return;
+    }
+
+    const t = await token();
+
+    const res = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items`,{
+        method:"POST",
+        headers:{
+            Authorization:`Bearer ${t}`,
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            fields:{
+                Title:fornecedor,
+                Fornecedor:fornecedor,
+                ValorEstimado:valor,
+                ColaboradorEmail:userEmail
+            }
+        })
+    });
+
+    const data = await res.json();
+
+    console.log("Accrual criado:", data);
+
+    // limpar campos
+    document.getElementById("fornAcc").value = "";
+    document.getElementById("valorAcc").value = "";
+
+    // atualizar dashboard
+    loadDashboard();
+
+    alert("Accrual registado com sucesso");
 }
 async function loadDashboard(){
 
