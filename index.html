@@ -11,7 +11,6 @@ body{font-family:system-ui;padding:20px;background:#f4f6f9}
 .card{background:white;padding:15px;margin-bottom:15px;border-radius:10px}
 button{padding:8px 12px;border:none;background:#2f9e44;color:white;border-radius:6px;cursor:pointer;margin-right:5px}
 input{padding:8px;width:100%;margin-bottom:10px}
-pre{white-space:pre-wrap}
 </style>
 
 </head>
@@ -24,6 +23,8 @@ pre{white-space:pre-wrap}
 
 <input id="fornecedor" placeholder="Fornecedor">
 <input id="valor" type="number" placeholder="Valor (€)">
+<input id="dataPrevista" type="date">
+<input id="mes" type="number" placeholder="Mês (1-12)">
 
 <button onclick="criarAccrual()">Guardar</button>
 </div>
@@ -67,8 +68,6 @@ async function initApp() {
         userEmail = accounts[0].username;
     }
 
-    document.getElementById("output").innerText = "Utilizador: " + userEmail;
-
     await carregarAccruals();
 }
 
@@ -85,18 +84,10 @@ async function getToken() {
 
 async function criarAccrual() {
 
-    const fornecedor = document.getElementById("fornecedor").value.trim();
+    const fornecedor = document.getElementById("fornecedor").value;
     const valor = parseFloat(document.getElementById("valor").value);
-
-    if (!fornecedor) {
-        alert("Indica o fornecedor.");
-        return;
-    }
-
-    if (isNaN(valor) || valor <= 0) {
-        alert("Indica um valor válido.");
-        return;
-    }
+    const dataPrevista = document.getElementById("dataPrevista").value;
+    const mes = parseInt(document.getElementById("mes").value);
 
     const token = await getToken();
 
@@ -108,11 +99,13 @@ async function criarAccrual() {
             Fornecedor: fornecedor,
             ValorEstimado: valor,
             Estado: "Pendente",
+            DataPrevista: dataPrevista,
+            MesReferencia: mes,
             ColaboradorEmail: userEmail
         }
     };
 
-    const res = await fetch(url, {
+    await fetch(url, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${token}`,
@@ -121,20 +114,7 @@ async function criarAccrual() {
         body: JSON.stringify(body)
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-        document.getElementById("output").innerText =
-            "ERRO AO CRIAR:\n" + JSON.stringify(data, null, 2);
-        return;
-    }
-
-    document.getElementById("fornecedor").value = "";
-    document.getElementById("valor").value = "";
-
-    document.getElementById("output").innerText = "Accrual criado com sucesso.";
-
-    await carregarAccruals();
+    carregarAccruals();
 }
 
 async function carregarAccruals() {
@@ -151,108 +131,25 @@ async function carregarAccruals() {
 
     const data = await res.json();
 
-    if (!res.ok) {
-        document.getElementById("output").innerText =
-            "ERRO AO CARREGAR LISTA:\n" + JSON.stringify(data, null, 2);
-        return;
-    }
-
     let html = "";
 
     data.value.forEach(item => {
         const f = item.fields;
 
-        if (f.ColaboradorEmail !== userEmail) {
-            return;
-        }
+        if (f.ColaboradorEmail !== userEmail) return;
 
         html += `
             <div style="border-bottom:1px solid #ddd;padding:10px 0">
-                <b>${f.Fornecedor || ""}</b><br>
-                ${f.ValorEstimado || 0} €<br>
-                Estado: ${f.Estado || ""}<br><br>
-
-                <button onclick="editarAccrual(${item.id}, '${f.Fornecedor || ""}', ${f.ValorEstimado || 0})">Editar</button>
-                <button onclick="apagarAccrual(${item.id})">Apagar</button>
+                <b>${f.Fornecedor}</b><br>
+                ${f.ValorEstimado} €<br>
+                Mês: ${f.MesReferencia}<br>
+                Data: ${f.DataPrevista}<br>
+                Estado: ${f.Estado}
             </div>
         `;
     });
 
-    if (html === "") {
-        html = "<p>Não existem accruals para este utilizador.</p>";
-    }
-
     document.getElementById("lista").innerHTML = html;
-}
-
-async function editarAccrual(id, fornecedorAtual, valorAtual) {
-
-    const novoFornecedor = prompt("Fornecedor:", fornecedorAtual);
-    const novoValor = prompt("Valor:", valorAtual);
-
-    if (!novoFornecedor) return;
-
-    const valorConvertido = parseFloat(novoValor);
-
-    if (isNaN(valorConvertido) || valorConvertido <= 0) {
-        alert("Valor inválido.");
-        return;
-    }
-
-    const token = await getToken();
-
-    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items/${id}/fields`;
-
-    const body = {
-        Title: novoFornecedor,
-        Fornecedor: novoFornecedor,
-        ValorEstimado: valorConvertido
-    };
-
-    const res = await fetch(url, {
-        method: "PATCH",
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-        document.getElementById("output").innerText =
-            "ERRO AO EDITAR:\n" + JSON.stringify(data, null, 2);
-        return;
-    }
-
-    await carregarAccruals();
-}
-
-async function apagarAccrual(id) {
-
-    if (!confirm("Apagar este accrual?")) return;
-
-    const token = await getToken();
-
-    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items/${id}`;
-
-    const res = await fetch(url, {
-        method: "DELETE",
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
-
-    if (!res.ok) {
-        const data = await res.json();
-
-        document.getElementById("output").innerText =
-            "ERRO AO APAGAR:\n" + JSON.stringify(data, null, 2);
-        return;
-    }
-
-    await carregarAccruals();
 }
 
 initApp();
