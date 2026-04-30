@@ -212,7 +212,14 @@ if(f.ColaboradorEmail!==userEmail) return;
 const val=parseFloat(f.ValorEstimado)||0;
 accruals+=val;
 
-movimentosHTML+=`<div class="item"><span>${f.Fornecedor}</span><span class="blue">+${val}€</span></div>`;
+movimentosHTML+=`
+<div class="item">
+<div>
+<b>${f.Fornecedor}</b><br>
+<small style="color:#94a3b8">Accrual</small>
+</div>
+<div class="blue">+${val}€</div>
+</div>`;
 });
 
 /* DESPESAS */
@@ -228,7 +235,14 @@ if(f.ColaboradorEmail!==userEmail) return;
 const val=parseFloat(f.Valor)||0;
 despesas+=val;
 
-movimentosHTML+=`<div class="item"><span>${f.Fornecedor}</span><span class="red">-${val}€</span></div>`;
+movimentosHTML+=`
+<div class="item">
+<div>
+<b>${f.Fornecedor}</b><br>
+<small style="color:#94a3b8">Despesa</small>
+</div>
+<div class="red">-${val}€</div>
+</div>`;
 });
 
 /* BUDGET */
@@ -248,27 +262,48 @@ budget+=parseFloat(f.ValorBudget)||0;
 /* UI */
 document.getElementById("despesas").innerText=despesas+"€";
 document.getElementById("accruals").innerText=accruals+"€";
-document.getElementById("budget").innerText=budget+"€";
-document.getElementById("movimentos").innerHTML=movimentosHTML;
-
-/* CHART BAR */
-if(barChart) barChart.destroy();
 barChart=new Chart(document.getElementById("barChart"),{
 type:"bar",
 data:{
 labels:["Despesas","Accruals"],
 datasets:[{
-data:[despesas,accruals]
+data:[despesas,accruals],
+backgroundColor:["#ef4444","#3b82f6"],
+borderRadius:8,
+barThickness:40
 }]
 },
 options:{
-plugins:{legend:{display:false}}
+plugins:{legend:{display:false}},
+scales:{
+x:{grid:{display:false}},
+y:{grid:{color:"#eee"}}
+}
 }
 });
 
 /* CHART DONUT */
 if(donutChart) donutChart.destroy();
+const totalUsado = despesas + accruals;
+const restante = Math.max(budget - totalUsado,0);
+
 donutChart=new Chart(document.getElementById("donutChart"),{
+type:"doughnut",
+data:{
+labels:["Usado","Livre"],
+datasets:[{
+data:[totalUsado,restante],
+backgroundColor:["#fb923c","#e5e7eb"],
+borderWidth:0
+}]
+},
+options:{
+cutout:"75%",
+plugins:{
+legend:{display:false}
+}
+}
+});
 type:"doughnut",
 data:{
 labels:["Usado","Livre"],
