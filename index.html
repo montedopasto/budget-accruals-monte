@@ -219,9 +219,13 @@ async function loadDashboard(){
 
     const dataAcc = await resAcc.json();
 
-    if(!dataAcc.value) return;
-
-dataAcc.value.forEach(i=>{
+    if(dataAcc.value){
+    dataAcc.value.forEach(i=>{
+        const f = i.fields || {};
+        if(f.ColaboradorEmail !== userEmail) return;
+        totalAccrual += parseFloat(f.ValorEstimado) || 0;
+    });
+}
         const f = i.fields || {};
         if(f.ColaboradorEmail !== userEmail) return;
         totalAccrual += parseFloat(f.ValorEstimado) || 0;
