@@ -220,16 +220,12 @@ async function loadDashboard(){
     const dataAcc = await resAcc.json();
 
     if(dataAcc.value){
-    dataAcc.value.forEach(i=>{
-        const f = i.fields || {};
-        if(f.ColaboradorEmail !== userEmail) return;
-        totalAccrual += parseFloat(f.ValorEstimado) || 0;
-    });
-}
-        const f = i.fields || {};
-        if(f.ColaboradorEmail !== userEmail) return;
-        totalAccrual += parseFloat(f.ValorEstimado) || 0;
-    });
+        dataAcc.value.forEach(i=>{
+            const f = i.fields || {};
+            if(f.ColaboradorEmail !== userEmail) return;
+            totalAccrual += parseFloat(f.ValorEstimado) || 0;
+        });
+    }
 
     // DESPESAS
     const resDesp = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/items?$expand=fields`,{
@@ -239,18 +235,14 @@ async function loadDashboard(){
     const dataDesp = await resDesp.json();
 
     if(dataDesp.value){
-    dataDesp.value.forEach(i=>{
-        const f = i.fields || {};
-        if(f.ColaboradorEmail !== userEmail) return;
-        totalDespesas += parseFloat(f.Valor) || 0;
-    });
-}
-        const f = i.fields || {};
-        if(f.ColaboradorEmail !== userEmail) return;
-        totalDespesas += parseFloat(f.Valor) || 0;
-    });
+        dataDesp.value.forEach(i=>{
+            const f = i.fields || {};
+            if(f.ColaboradorEmail !== userEmail) return;
+            totalDespesas += parseFloat(f.Valor) || 0;
+        });
+    }
 
-    const budget = 1000; // temporário
+    const budget = 1000;
 
     document.getElementById("accrualTotal").innerText = totalAccrual + "€";
     document.getElementById("despesasTotal").innerText = totalDespesas + "€";
