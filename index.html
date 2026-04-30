@@ -186,8 +186,46 @@ async function init(){
     loadDashboard();
 }
 
-function criarDespesa(){
-    alert("Depois ligamos ao SharePoint");
+async function criarDespesa(){
+
+    const fornecedor = document.getElementById("fornDespesa").value;
+    const valor = parseFloat(document.getElementById("valorDespesa").value);
+
+    if(!fornecedor || !valor){
+        alert("Preenche os campos");
+        return;
+    }
+
+    const t = await token();
+
+    const res = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/items`,{
+        method:"POST",
+        headers:{
+            Authorization:`Bearer ${t}`,
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            fields:{
+                Title:fornecedor,
+                Fornecedor:fornecedor,
+                Valor:valor,
+                ColaboradorEmail:userEmail
+            }
+        })
+    });
+
+    const data = await res.json();
+
+    console.log("Despesa criada:", data);
+
+    // limpar campos
+    document.getElementById("fornDespesa").value = "";
+    document.getElementById("valorDespesa").value = "";
+
+    // atualizar dashboard
+    loadDashboard();
+
+    alert("Despesa registada com sucesso");
 }
 const siteId = "montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a,d1a6f091-93b5-4454-b6e2-809ad4e4d73a";
 
