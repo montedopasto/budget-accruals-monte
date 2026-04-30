@@ -238,7 +238,13 @@ async function loadDashboard(){
 
     const dataDesp = await resDesp.json();
 
+    if(dataDesp.value){
     dataDesp.value.forEach(i=>{
+        const f = i.fields || {};
+        if(f.ColaboradorEmail !== userEmail) return;
+        totalDespesas += parseFloat(f.Valor) || 0;
+    });
+}
         const f = i.fields || {};
         if(f.ColaboradorEmail !== userEmail) return;
         totalDespesas += parseFloat(f.Valor) || 0;
