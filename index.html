@@ -2,397 +2,795 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Budget OS</title>
+<title>Budget & Accruals OS</title>
 
 <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
 *{box-sizing:border-box}
 
 body{
     margin:0;
-    font-family:Inter, system-ui;
-    background:#f6f8fc;
+    font-family:Inter,Segoe UI,system-ui,sans-serif;
+    background:#f4f6fb;
+    color:#111827;
 }
 
-/* HEADER */
 .header{
-    height:70px;
+    height:76px;
+    background:white;
+    border-bottom:1px solid #e5e7eb;
     display:flex;
     align-items:center;
     justify-content:space-between;
-    padding:0 30px;
-    background:white;
-    border-bottom:1px solid #e5e7eb;
+    padding:0 32px;
 }
 
-.logo{font-weight:700}
+.brand{
+    display:flex;
+    align-items:center;
+    gap:28px;
+}
 
-/* MENU */
+.logo{
+    font-size:20px;
+    font-weight:800;
+}
+
 .menu{
     display:flex;
-    gap:20px;
+    gap:10px;
 }
 
-.menu div{
-    cursor:pointer;
-    padding:6px 12px;
-    border-radius:8px;
+.menu button{
+    width:auto;
+    background:transparent;
+    color:#64748b;
+    padding:10px 14px;
+    border-radius:999px;
+    font-weight:700;
 }
 
-.menu div.active{
+.menu button.active{
     background:#6366f1;
     color:white;
 }
 
-/* LAYOUT */
+.user{
+    font-size:13px;
+    color:#64748b;
+}
+
+.page{
+    padding:24px;
+}
+
 .layout{
     display:grid;
-    grid-template-columns:1fr 320px;
-    gap:20px;
-    padding:20px;
+    grid-template-columns:1fr 340px;
+    gap:22px;
 }
 
-/* CARD */
 .card{
     background:white;
-    border-radius:20px;
-    padding:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.05);
+    border-radius:22px;
+    padding:22px;
+    box-shadow:0 12px 30px rgba(15,23,42,.06);
 }
 
-/* KPIS */
 .kpis{
-    display:flex;
-    gap:15px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
 }
 
 .kpi{
-    flex:1;
-    background:#f9fafb;
-    border-radius:14px;
-    padding:15px;
+    background:#f8fafc;
+    border-radius:18px;
+    padding:18px;
 }
 
 .kpi span{
     font-size:12px;
     color:#94a3b8;
+    font-weight:700;
+    text-transform:uppercase;
 }
 
 .kpi b{
-    font-size:22px;
+    display:block;
+    margin-top:8px;
+    font-size:26px;
 }
 
-/* GRID */
-.main{
+.status{
+    margin-top:18px;
+    padding:14px;
+    border-radius:16px;
+    font-weight:800;
+    background:#ecfdf5;
+    color:#166534;
+}
+
+.status.warning{
+    background:#fffbeb;
+    color:#92400e;
+}
+
+.status.danger{
+    background:#fef2f2;
+    color:#991b1b;
+}
+
+.progress{
+    margin-top:14px;
+    height:12px;
+    background:#e5e7eb;
+    border-radius:999px;
+    overflow:hidden;
+}
+
+.progress div{
+    height:100%;
+    width:0%;
+    background:#22c55e;
+    border-radius:999px;
+    transition:.3s;
+}
+
+.charts{
     display:grid;
     grid-template-columns:2fr 1fr;
     gap:20px;
     margin-top:20px;
 }
 
-.chart{height:260px}
-.donut{height:260px}
+.chartbox{
+    height:280px;
+}
 
-/* SIDE */
-.row{
+.side{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.summary-row,.movement{
     display:flex;
     justify-content:space-between;
-    margin:8px 0;
+    align-items:center;
+    padding:11px 0;
+    border-bottom:1px solid #eef2f7;
 }
 
-.mov{
-    display:flex;
-    justify-content:space-between;
-    padding:10px 0;
-    border-bottom:1px solid #eee;
+.movement small{
+    color:#94a3b8;
 }
 
-/* FORMS */
-input{
-    width:100%;
-    padding:10px;
-    margin-bottom:10px;
-    border:1px solid #ddd;
-    border-radius:8px;
-}
-
-button{
-    padding:10px;
-    width:100%;
-    background:#16a34a;
-    color:white;
-    border:none;
-    border-radius:8px;
-}
-
-/* COLORS */
 .red{color:#ef4444}
 .orange{color:#f97316}
 .green{color:#22c55e}
-.gray{color:#94a3b8}
+.blue{color:#3b82f6}
+.purple{color:#6366f1}
 
-.hidden{display:none}
+.section{
+    display:none;
+}
 
+.section.active{
+    display:block;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+}
+
+.full{
+    grid-column:1/-1;
+}
+
+label{
+    font-size:13px;
+    font-weight:700;
+    color:#64748b;
+}
+
+input,select,textarea{
+    width:100%;
+    margin-top:6px;
+    padding:12px;
+    border:1px solid #dbe3ef;
+    border-radius:12px;
+    font:inherit;
+}
+
+textarea{
+    min-height:90px;
+}
+
+.action{
+    background:#6366f1;
+    color:white;
+    border:none;
+    border-radius:14px;
+    padding:13px 18px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:16px;
+}
+
+.table th,.table td{
+    padding:12px;
+    border-bottom:1px solid #eef2f7;
+    text-align:left;
+    font-size:14px;
+}
+
+.filters{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-bottom:14px;
+}
+
+@media(max-width:900px){
+    .layout,.charts,.kpis,.form-grid,.filters{
+        grid-template-columns:1fr;
+    }
+
+    .header{
+        height:auto;
+        padding:18px;
+        align-items:flex-start;
+        gap:16px;
+        flex-direction:column;
+    }
+
+    .menu{
+        flex-wrap:wrap;
+    }
+}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-    <div style="display:flex;align-items:center;gap:30px;">
-        <div class="logo">💰 Budget</div>
-
+    <div class="brand">
+        <div class="logo">💰 Budget & Accruals OS</div>
         <div class="menu">
-            <div class="active" onclick="show('dashboard',this)">Dashboard</div>
-            <div onclick="show('despesas',this)">Despesas</div>
-            <div onclick="show('accruals',this)">Accruals</div>
+            <button class="active" onclick="showSection('dashboard',this)">Dashboard</button>
+            <button onclick="showSection('despesas',this)">Despesa</button>
+            <button onclick="showSection('accruals',this)">Accrual</button>
+            <button onclick="showSection('historico',this)">Histórico</button>
+            <button onclick="showSection('budgetAdmin',this)">Budget</button>
         </div>
     </div>
-
-    <div id="user"></div>
+    <div class="user" id="user">A iniciar sessão...</div>
 </div>
 
-<div id="dashboard">
+<div class="page">
 
-<div class="layout">
+<section id="dashboard" class="section active">
+    <div class="layout">
+        <div>
+            <div class="card">
+                <div class="kpis">
+                    <div class="kpi"><span>Budget anual</span><b id="kBudget">0€</b></div>
+                    <div class="kpi"><span>Despesas</span><b id="kDespesas">0€</b></div>
+                    <div class="kpi"><span>Accruals</span><b id="kAccruals">0€</b></div>
+                    <div class="kpi"><span>Disponível</span><b id="kDisponivel">0€</b></div>
+                </div>
 
-<div>
+                <div id="statusBox" class="status">Budget saudável</div>
+                <div class="progress"><div id="progressBar"></div></div>
 
-<div class="card">
+                <div class="charts">
+                    <div class="card">
+                        <b>Evolução mensal</b>
+                        <div class="chartbox"><canvas id="lineChart"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <b>Consumo</b>
+                        <div class="chartbox"><canvas id="donutChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="kpis">
-<div class="kpi"><span>Despesas</span><br><b id="despesas">0€</b></div>
-<div class="kpi"><span>Accruals</span><br><b id="accruals">0€</b></div>
-<div class="kpi"><span>Budget</span><br><b id="budget">0€</b></div>
-</div>
+        <div class="side">
+            <div class="card">
+                <b>Resumo</b>
+                <div class="summary-row"><span>Budget</span><strong id="sBudget">0€</strong></div>
+                <div class="summary-row"><span>Despesas</span><strong id="sDespesas" class="red">0€</strong></div>
+                <div class="summary-row"><span>Accruals</span><strong id="sAccruals" class="orange">0€</strong></div>
+                <div class="summary-row"><span>Disponível</span><strong id="sDisponivel" class="green">0€</strong></div>
+            </div>
 
-<div class="main">
+            <div class="card">
+                <b>Últimos movimentos</b>
+                <div id="recentMovements"></div>
+            </div>
+        </div>
+    </div>
+</section>
 
-<div><canvas id="lineChart" class="chart"></canvas></div>
+<section id="despesas" class="section">
+    <div class="card">
+        <h2>Registar despesa</h2>
+        <div class="form-grid">
+            <label>Fornecedor<input id="despFornecedor"></label>
+            <label>Valor<input id="despValor" type="number"></label>
+            <label>Categoria<input id="despCategoria" placeholder="Ex: Combustível"></label>
+            <label>Data<input id="despData" type="date"></label>
+            <label class="full">Descrição<textarea id="despDescricao"></textarea></label>
+            <button class="action full" onclick="addDespesa()">Guardar despesa</button>
+        </div>
+    </div>
+</section>
 
-<div><canvas id="donutChart" class="donut"></canvas></div>
+<section id="accruals" class="section">
+    <div class="card">
+        <h2>Registar accrual</h2>
+        <div class="form-grid">
+            <label>Fornecedor<input id="accFornecedor"></label>
+            <label>Valor estimado<input id="accValor" type="number"></label>
+            <label>Categoria<input id="accCategoria" placeholder="Ex: Serviços"></label>
+            <label>Data prevista<input id="accData" type="date"></label>
+            <label>Mês referência<input id="accMes" type="number" min="1" max="12"></label>
+            <label>Ano referência<input id="accAno" type="number"></label>
+            <label class="full">Descrição<textarea id="accDescricao"></textarea></label>
+            <button class="action full" onclick="addAccrual()">Guardar accrual</button>
+        </div>
+    </div>
+</section>
 
-</div>
+<section id="historico" class="section">
+    <div class="card">
+        <h2>Histórico</h2>
+        <div class="filters">
+            <label>Ano<select id="filterAno" onchange="renderHistory()"></select></label>
+            <label>Mês<select id="filterMes" onchange="renderHistory()"></select></label>
+            <label>Tipo<select id="filterTipo" onchange="renderHistory()">
+                <option value="todos">Todos</option>
+                <option value="Despesa">Despesas</option>
+                <option value="Accrual">Accruals</option>
+            </select></label>
+        </div>
+        <table class="table">
+            <thead>
+                <tr><th>Data</th><th>Tipo</th><th>Fornecedor</th><th>Categoria</th><th>Valor</th></tr>
+            </thead>
+            <tbody id="historyTable"></tbody>
+        </table>
+    </div>
+</section>
 
-</div>
+<section id="budgetAdmin" class="section">
+    <div class="card">
+        <h2>Definir budget anual</h2>
+        <div class="form-grid">
+            <label>Ano<input id="budgetAno" type="number"></label>
+            <label>Valor budget<input id="budgetValor" type="number"></label>
+            <button class="action full" onclick="addBudget()">Guardar budget</button>
+        </div>
+    </div>
+</section>
 
-</div>
-
-<div>
-
-<div class="card">
-<b>Resumo</b>
-<div class="row"><span>Despesas</span><span id="r1">0€</span></div>
-<div class="row"><span>Accruals</span><span id="r2">0€</span></div>
-<div class="row"><span>Disponível</span><span id="r3">0€</span></div>
-</div>
-
-<div class="card">
-<b>Movimentos</b>
-<div id="movimentos"></div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- DESPESAS -->
-<div id="despesas" class="hidden" style="padding:20px;">
-<div class="card">
-<h3>Nova Despesa</h3>
-<input id="f1" placeholder="Fornecedor">
-<input id="v1" type="number" placeholder="Valor">
-<button onclick="addDespesa()">Guardar</button>
-</div>
-</div>
-
-<!-- ACCRUALS -->
-<div id="accruals" class="hidden" style="padding:20px;">
-<div class="card">
-<h3>Novo Accrual</h3>
-<input id="f2" placeholder="Fornecedor">
-<input id="v2" type="number" placeholder="Valor">
-<button onclick="addAccrual()">Guardar</button>
-</div>
 </div>
 
 <script>
-
 const clientId="84a548f9-d082-4e9b-b639-1b34432df8c8";
 const tenantId="ee417351-ea90-41e0-9147-5ea6ab38ea49";
 const siteId="montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a,d1a6f091-93b5-4454-b6e2-809ad4e4d73a";
 
 let userEmail="";
-let lineChart,donutChart;
+let movimentos=[];
+let lineChart=null;
+let donutChart=null;
 
 const msalInstance=new msal.PublicClientApplication({
-auth:{clientId,authority:`https://login.microsoftonline.com/${tenantId}`,redirectUri:window.location.origin}
+    auth:{clientId,authority:`https://login.microsoftonline.com/${tenantId}`,redirectUri:window.location.origin}
 });
 
-function show(tab,el){
+function euro(v){
+    return (Number(v)||0).toLocaleString("pt-PT",{style:"currency",currency:"EUR"});
+}
 
-document.querySelectorAll(".menu div").forEach(m=>m.classList.remove("active"));
-el.classList.add("active");
-
-document.getElementById("dashboard").classList.add("hidden");
-document.getElementById("despesas").classList.add("hidden");
-document.getElementById("accruals").classList.add("hidden");
-
-document.getElementById(tab).classList.remove("hidden");
+function showSection(id,btn){
+    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    if(id==="historico") renderHistory();
 }
 
 async function init(){
+    const acc=msalInstance.getAllAccounts();
 
-const acc=msalInstance.getAllAccounts();
+    if(acc.length===0){
+        const res=await msalInstance.loginPopup({scopes:["User.Read","Sites.ReadWrite.All"]});
+        userEmail=res.account.username;
+    }else{
+        userEmail=acc[0].username;
+    }
 
-if(acc.length===0){
-const res=await msalInstance.loginPopup({scopes:["User.Read","Sites.ReadWrite.All"]});
-userEmail=res.account.username;
-}else{
-userEmail=acc[0].username;
-}
+    document.getElementById("user").innerText=userEmail;
 
-document.getElementById("user").innerText=userEmail;
+    const hoje=new Date();
+    document.getElementById("despData").value=hoje.toISOString().slice(0,10);
+    document.getElementById("accData").value=hoje.toISOString().slice(0,10);
+    document.getElementById("accMes").value=hoje.getMonth()+1;
+    document.getElementById("accAno").value=hoje.getFullYear();
+    document.getElementById("budgetAno").value=hoje.getFullYear();
 
-load();
+    load();
 }
 
 async function token(){
-const acc=msalInstance.getAllAccounts()[0];
-const res=await msalInstance.acquireTokenSilent({scopes:["User.Read","Sites.ReadWrite.All"],account:acc});
-return res.accessToken;
+    const acc=msalInstance.getAllAccounts()[0];
+    const res=await msalInstance.acquireTokenSilent({scopes:["User.Read","Sites.ReadWrite.All"],account:acc});
+    return res.accessToken;
+}
+
+async function graphGet(list){
+    const t=await token();
+    const res=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${list}/items?$expand=fields`,{
+        headers:{Authorization:`Bearer ${t}`}
+    });
+    return await res.json();
+}
+
+async function graphPost(list,fields,fallbackFields){
+    const t=await token();
+
+    let res=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${list}/items`,{
+        method:"POST",
+        headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
+        body:JSON.stringify({fields})
+    });
+
+    if(!res.ok && fallbackFields){
+        res=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${list}/items`,{
+            method:"POST",
+            headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
+            body:JSON.stringify({fields:fallbackFields})
+        });
+    }
+
+    return res;
 }
 
 async function addDespesa(){
+    const fornecedor=document.getElementById("despFornecedor").value.trim();
+    const valor=parseFloat(document.getElementById("despValor").value);
 
-const t=await token();
+    if(!fornecedor || !valor){
+        alert("Preenche fornecedor e valor.");
+        return;
+    }
 
-await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/items`,{
-method:"POST",
-headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
-body:JSON.stringify({fields:{Title:f1.value,Fornecedor:f1.value,Valor:parseFloat(v1.value),ColaboradorEmail:userEmail}})
-});
+    const full={
+        Title:fornecedor,
+        Fornecedor:fornecedor,
+        Valor:valor,
+        Categoria:document.getElementById("despCategoria").value.trim(),
+        Descricao:document.getElementById("despDescricao").value.trim(),
+        Data:document.getElementById("despData").value,
+        ColaboradorEmail:userEmail
+    };
 
-load();
+    const fallback={
+        Title:fornecedor,
+        Fornecedor:fornecedor,
+        Valor:valor,
+        ColaboradorEmail:userEmail
+    };
+
+    await graphPost("DespesasColaboradores",full,fallback);
+
+    document.getElementById("despFornecedor").value="";
+    document.getElementById("despValor").value="";
+    document.getElementById("despCategoria").value="";
+    document.getElementById("despDescricao").value="";
+
+    load();
+    alert("Despesa registada.");
 }
 
 async function addAccrual(){
+    const fornecedor=document.getElementById("accFornecedor").value.trim();
+    const valor=parseFloat(document.getElementById("accValor").value);
 
-const t=await token();
+    if(!fornecedor || !valor){
+        alert("Preenche fornecedor e valor.");
+        return;
+    }
 
-await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items`,{
-method:"POST",
-headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
-body:JSON.stringify({fields:{Title:f2.value,Fornecedor:f2.value,ValorEstimado:parseFloat(v2.value),ColaboradorEmail:userEmail}})
-});
+    const full={
+        Title:fornecedor,
+        Fornecedor:fornecedor,
+        ValorEstimado:valor,
+        Categoria:document.getElementById("accCategoria").value.trim(),
+        Descricao:document.getElementById("accDescricao").value.trim(),
+        DataPrevista:document.getElementById("accData").value,
+        MesReferencia:parseInt(document.getElementById("accMes").value),
+        AnoReferencia:parseInt(document.getElementById("accAno").value),
+        ColaboradorEmail:userEmail
+    };
 
-load();
+    const fallback={
+        Title:fornecedor,
+        Fornecedor:fornecedor,
+        ValorEstimado:valor,
+        ColaboradorEmail:userEmail
+    };
+
+    await graphPost("AccrualsColaboradores",full,fallback);
+
+    document.getElementById("accFornecedor").value="";
+    document.getElementById("accValor").value="";
+    document.getElementById("accCategoria").value="";
+    document.getElementById("accDescricao").value="";
+
+    load();
+    alert("Accrual registado.");
+}
+
+async function addBudget(){
+    const ano=parseInt(document.getElementById("budgetAno").value);
+    const valor=parseFloat(document.getElementById("budgetValor").value);
+
+    if(!ano || !valor){
+        alert("Preenche ano e valor.");
+        return;
+    }
+
+    await graphPost("BudgetColaboradores",{
+        Title:"Budget "+ano,
+        Ano:ano,
+        ValorBudget:valor,
+        ColaboradorEmail:userEmail,
+        Ativo:true
+    });
+
+    document.getElementById("budgetValor").value="";
+    load();
+    alert("Budget registado.");
 }
 
 async function load(){
+    const anoAtual=new Date().getFullYear();
 
-const t=await token();
+    const accData=await graphGet("AccrualsColaboradores");
+    const despData=await graphGet("DespesasColaboradores");
+    const budgetData=await graphGet("BudgetColaboradores");
 
-let despesas=0,accruals=0,budget=0,mov="";
+    let despesas=0;
+    let accruals=0;
+    let budget=0;
+    let mensal=new Array(12).fill(0);
+    movimentos=[];
 
-const ano=new Date().getFullYear();
+    accData.value?.forEach(i=>{
+        const f=i.fields||{};
+        if(f.ColaboradorEmail!==userEmail) return;
 
-/* ACCRUALS */
-const a=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
-const da=await a.json();
+        const valor=parseFloat(f.ValorEstimado)||0;
+        const data=i.createdDateTime ? new Date(i.createdDateTime) : new Date();
+        const mes=parseInt(f.MesReferencia)||data.getMonth()+1;
+        const ano=parseInt(f.AnoReferencia)||data.getFullYear();
 
-da.value?.forEach(i=>{
-const f=i.fields||{};
-if(f.ColaboradorEmail!==userEmail)return;
-const v=parseFloat(f.ValorEstimado)||0;
-accruals+=v;
-mov+=`<div class="mov"><span>${f.Fornecedor}</span><span class="orange">+${v}€</span></div>`;
-});
+        accruals+=valor;
+        if(ano===anoAtual) mensal[mes-1]+=valor;
 
-/* DESPESAS */
-const d=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
-const dd=await d.json();
+        movimentos.push({
+            tipo:"Accrual",
+            fornecedor:f.Fornecedor||"-",
+            categoria:f.Categoria||"Sem categoria",
+            valor,
+            data
+        });
+    });
 
-dd.value?.forEach(i=>{
-const f=i.fields||{};
-if(f.ColaboradorEmail!==userEmail)return;
-const v=parseFloat(f.Valor)||0;
-despesas+=v;
-mov+=`<div class="mov"><span>${f.Fornecedor}</span><span class="red">-${v}€</span></div>`;
-});
+    despData.value?.forEach(i=>{
+        const f=i.fields||{};
+        if(f.ColaboradorEmail!==userEmail) return;
 
-/* BUDGET */
-const b=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/BudgetColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
-const db=await b.json();
+        const valor=parseFloat(f.Valor)||0;
+        const data=f.Data ? new Date(f.Data) : new Date(i.createdDateTime);
 
-db.value?.forEach(i=>{
-const f=i.fields||{};
-if(f.ColaboradorEmail!==userEmail)return;
-if(parseInt(f.Ano)!==ano)return;
-budget+=parseFloat(f.ValorBudget)||0;
-});
+        despesas+=valor;
+        if(data.getFullYear()===anoAtual) mensal[data.getMonth()]+=valor;
 
-/* UI */
-despesasEl.innerText=despesas+"€";
-accrualsEl.innerText=accruals+"€";
-budgetEl.innerText=budget+"€";
+        movimentos.push({
+            tipo:"Despesa",
+            fornecedor:f.Fornecedor||"-",
+            categoria:f.Categoria||"Sem categoria",
+            valor,
+            data
+        });
+    });
 
-r1.innerText=despesas+"€";
-r2.innerText=accruals+"€";
-r3.innerText=(budget-despesas-accruals)+"€";
+    budgetData.value?.forEach(i=>{
+        const f=i.fields||{};
+        if(f.ColaboradorEmail!==userEmail) return;
+        if(parseInt(f.Ano)!==anoAtual) return;
+        if(f.Ativo===false) return;
 
-movimentos.innerHTML=mov;
+        budget+=parseFloat(f.ValorBudget)||0;
+    });
 
-/* CHART */
-if(lineChart) lineChart.destroy();
-
-lineChart=new Chart(lineChartEl,{
-type:"line",
-data:{
-labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
-datasets:[{
-data:[0,0,0,0,despesas,accruals,0,0,0,0,0,0],
-borderColor:"#6366f1",
-backgroundColor:"rgba(99,102,241,0.1)",
-fill:true,
-tension:0.4
-}]
-},
-options:{plugins:{legend:{display:false}}}
-});
-
-/* DONUT */
-if(donutChart) donutChart.destroy();
-
-const total=despesas+accruals;
-const rest=Math.max(budget-total,0);
-
-donutChart=new Chart(donutChartEl,{
-type:"doughnut",
-data:{
-datasets:[{
-data:[total,rest],
-backgroundColor:["#6366f1","#e5e7eb"]
-}]
-},
-options:{cutout:"75%",plugins:{legend:{display:false}}}
-});
-
+    renderDashboard(budget,despesas,accruals,mensal);
+    renderRecent();
+    setupFilters();
+    renderHistory();
 }
 
-const despesasEl=document.getElementById("despesas");
-const accrualsEl=document.getElementById("accruals");
-const budgetEl=document.getElementById("budget");
-const lineChartEl=document.getElementById("lineChart");
-const donutChartEl=document.getElementById("donutChart");
+function renderDashboard(budget,despesas,accruals,mensal){
+    const usado=despesas+accruals;
+    const disponivel=budget-usado;
+    const percent=budget>0 ? (usado/budget)*100 : 0;
+
+    document.getElementById("kBudget").innerText=euro(budget);
+    document.getElementById("kDespesas").innerText=euro(despesas);
+    document.getElementById("kAccruals").innerText=euro(accruals);
+    document.getElementById("kDisponivel").innerText=euro(disponivel);
+
+    document.getElementById("sBudget").innerText=euro(budget);
+    document.getElementById("sDespesas").innerText=euro(despesas);
+    document.getElementById("sAccruals").innerText=euro(accruals);
+    document.getElementById("sDisponivel").innerText=euro(disponivel);
+
+    const status=document.getElementById("statusBox");
+    status.className="status";
+
+    if(percent>=100){
+        status.classList.add("danger");
+        status.innerText="Budget ultrapassado — rever despesas e accruals.";
+    }else if(percent>=80){
+        status.classList.add("warning");
+        status.innerText="Atenção: consumo acima de 80% do budget.";
+    }else{
+        status.innerText="Budget saudável — consumo controlado.";
+    }
+
+    const bar=document.getElementById("progressBar");
+    bar.style.width=Math.min(percent,100)+"%";
+    bar.style.background=percent>=100 ? "#ef4444" : percent>=80 ? "#f59e0b" : "#22c55e";
+
+    if(lineChart) lineChart.destroy();
+    lineChart=new Chart(document.getElementById("lineChart"),{
+        type:"line",
+        data:{
+            labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
+            datasets:[{
+                data:mensal,
+                borderColor:"#6366f1",
+                backgroundColor:"rgba(99,102,241,.12)",
+                fill:true,
+                tension:.42,
+                pointRadius:4,
+                pointBackgroundColor:"#6366f1"
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{
+                x:{grid:{display:false}},
+                y:{grid:{color:"#eef2f7"}}
+            }
+        }
+    });
+
+    if(donutChart) donutChart.destroy();
+    donutChart=new Chart(document.getElementById("donutChart"),{
+        type:"doughnut",
+        data:{
+            labels:["Usado","Livre"],
+            datasets:[{
+                data:[usado,Math.max(disponivel,0)],
+                backgroundColor:["#6366f1","#e5e7eb"],
+                borderWidth:0
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            cutout:"76%",
+            plugins:{legend:{display:false}}
+        }
+    });
+}
+
+function renderRecent(){
+    movimentos.sort((a,b)=>b.data-a.data);
+
+    const html=movimentos.slice(0,8).map(m=>{
+        const cls=m.tipo==="Despesa" ? "red" : "orange";
+        const sign=m.tipo==="Despesa" ? "-" : "+";
+        return `
+            <div class="movement">
+                <div>
+                    <strong>${m.fornecedor}</strong><br>
+                    <small>${m.tipo} · ${m.categoria}</small>
+                </div>
+                <strong class="${cls}">${sign}${euro(m.valor)}</strong>
+            </div>
+        `;
+    }).join("");
+
+    document.getElementById("recentMovements").innerHTML=html || "<p>Sem movimentos.</p>";
+}
+
+function setupFilters(){
+    const anoSel=document.getElementById("filterAno");
+    const mesSel=document.getElementById("filterMes");
+
+    if(anoSel.options.length===0){
+        const ano=new Date().getFullYear();
+        anoSel.innerHTML=`
+            <option value="todos">Todos</option>
+            <option value="${ano}">${ano}</option>
+            <option value="${ano-1}">${ano-1}</option>
+        `;
+
+        mesSel.innerHTML=`
+            <option value="todos">Todos</option>
+            <option value="1">Janeiro</option>
+            <option value="2">Fevereiro</option>
+            <option value="3">Março</option>
+            <option value="4">Abril</option>
+            <option value="5">Maio</option>
+            <option value="6">Junho</option>
+            <option value="7">Julho</option>
+            <option value="8">Agosto</option>
+            <option value="9">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+        `;
+    }
+}
+
+function renderHistory(){
+    const ano=document.getElementById("filterAno").value;
+    const mes=document.getElementById("filterMes").value;
+    const tipo=document.getElementById("filterTipo").value;
+
+    const rows=movimentos
+        .filter(m=>ano==="todos" || m.data.getFullYear()===parseInt(ano))
+        .filter(m=>mes==="todos" || m.data.getMonth()+1===parseInt(mes))
+        .filter(m=>tipo==="todos" || m.tipo===tipo)
+        .sort((a,b)=>b.data-a.data)
+        .map(m=>{
+            const cls=m.tipo==="Despesa" ? "red" : "orange";
+            const sign=m.tipo==="Despesa" ? "-" : "+";
+            return `
+                <tr>
+                    <td>${m.data.toLocaleDateString("pt-PT")}</td>
+                    <td>${m.tipo}</td>
+                    <td>${m.fornecedor}</td>
+                    <td>${m.categoria}</td>
+                    <td class="${cls}"><strong>${sign}${euro(m.valor)}</strong></td>
+                </tr>
+            `;
+        }).join("");
+
+    document.getElementById("historyTable").innerHTML=rows || `<tr><td colspan="5">Sem movimentos.</td></tr>`;
+}
 
 init();
-
 </script>
 
 </body>
