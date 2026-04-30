@@ -262,6 +262,8 @@ budget+=parseFloat(f.ValorBudget)||0;
 /* UI */
 document.getElementById("despesas").innerText=despesas+"€";
 document.getElementById("accruals").innerText=accruals+"€";
+if(barChart) barChart.destroy();
+
 barChart=new Chart(document.getElementById("barChart"),{
 type:"bar",
 data:{
@@ -288,22 +290,7 @@ const totalUsado = despesas + accruals;
 const restante = Math.max(budget - totalUsado,0);
 
 donutChart=new Chart(document.getElementById("donutChart"),{
-type:"doughnut",
-data:{
-labels:["Usado","Livre"],
-datasets:[{
-data:[totalUsado,restante],
-backgroundColor:["#fb923c","#e5e7eb"],
-borderWidth:0
-}]
-},
-options:{
-cutout:"75%",
-plugins:{
-legend:{display:false}
-}
-}
-});
+
 type:"doughnut",
 data:{
 labels:["Usado","Livre"],
