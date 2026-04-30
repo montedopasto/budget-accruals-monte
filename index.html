@@ -318,7 +318,27 @@ async function loadDashboard(){
         });
     }
 
-    const budget = 1000;
+    let budget = 0;
+
+const anoAtual = new Date().getFullYear();
+
+const resBudget = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/BudgetColaboradores/items?$expand=fields`,{
+    headers:{Authorization:`Bearer ${t}`}
+});
+
+const dataBudget = await resBudget.json();
+
+if(dataBudget.value){
+    dataBudget.value.forEach(i=>{
+        const f = i.fields || {};
+
+        if(f.ColaboradorEmail !== userEmail) return;
+        if(parseInt(f.Ano) !== anoAtual) return;
+
+        // campo correto do teu SharePoint
+        budget += parseFloat(f.ValorBudget) || 0;
+    });
+}
 
     document.getElementById("accrualTotal").innerText = totalAccrual + "€";
     document.getElementById("despesasTotal").innerText = totalDespesas + "€";
