@@ -448,6 +448,11 @@ async function token(){
 
     const acc = msalInstance.getAllAccounts()[0];
 
+    if(!acc){
+        console.warn("Sem conta autenticada");
+        return null;
+    }
+
     try{
         const res = await msalInstance.acquireTokenSilent({
             scopes:["User.Read","Sites.ReadWrite.All"],
@@ -456,10 +461,10 @@ async function token(){
 
         return res.accessToken;
 
-   catch(e){
-    console.warn("Token silent falhou");
-    return null;
-}
+    }catch(e){
+        console.warn("Token silent falhou");
+        return null;
+    }
 }
 
 async function addDespesa(){
