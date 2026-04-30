@@ -271,7 +271,6 @@ textarea{
             <button onclick="showSection('despesas',this)">Despesa</button>
             <button onclick="showSection('accruals',this)">Accrual</button>
             <button onclick="showSection('historico',this)">Histórico</button>
-            <button onclick="showSection('budgetAdmin',this)">Budget</button>
         </div>
     </div>
     <div class="user" id="user">A iniciar sessão...</div>
@@ -371,17 +370,6 @@ textarea{
             </thead>
             <tbody id="historyTable"></tbody>
         </table>
-    </div>
-</section>
-
-<section id="budgetAdmin" class="section">
-    <div class="card">
-        <h2>Definir budget anual</h2>
-        <div class="form-grid">
-            <label>Ano<input id="budgetAno" type="number"></label>
-            <label>Valor budget<input id="budgetValor" type="number"></label>
-            <button class="action full" onclick="addBudget()">Guardar budget</button>
-        </div>
     </div>
 </section>
 
@@ -543,27 +531,6 @@ async function addAccrual(){
     alert("Accrual registado.");
 }
 
-async function addBudget(){
-    const ano=parseInt(document.getElementById("budgetAno").value);
-    const valor=parseFloat(document.getElementById("budgetValor").value);
-
-    if(!ano || !valor){
-        alert("Preenche ano e valor.");
-        return;
-    }
-
-    await graphPost("BudgetColaboradores",{
-        Title:"Budget "+ano,
-        Ano:ano,
-        ValorBudget:valor,
-        ColaboradorEmail:userEmail,
-        Ativo:true
-    });
-
-    document.getElementById("budgetValor").value="";
-    load();
-    alert("Budget registado.");
-}
 
 async function load(){
     const anoAtual=new Date().getFullYear();
