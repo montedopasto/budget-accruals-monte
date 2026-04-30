@@ -407,23 +407,34 @@ function showSection(id,btn){
 
 async function init(){
 
-    await msalInstance.handleRedirectPromise();
-
     const acc = msalInstance.getAllAccounts();
 
-    if(acc.length===0){
-        msalInstance.loginRedirect({
-            scopes:["User.Read","Sites.ReadWrite.All"]
-        });
+    // 👇 se já está autenticado
+    if(acc.length > 0){
+        userEmail = acc[0].username;
+        document.getElementById("user").innerText = userEmail;
+
+        await loadCategorias();
+        load();
         return;
     }
 
-    userEmail = acc[0].username;
+    // 👇 login simples (SEM redirect)
+    try{
+        const res = await msalInstance.loginPopup({
+            scopes:["User.Read","Sites.ReadWrite.All"]
+        });
 
-    document.getElementById("user").innerText=userEmail;
+        userEmail = res.account.username;
+        document.getElementById("user").innerText = userEmail;
 
-    await loadCategorias();
-load();
+        await loadCategorias();
+        load();
+
+    }catch(e){
+        console.error("LOGIN ERROR", e);
+        document.getElementById("user").innerText = "Erro login";
+    }
 }
 
 async function token(){
