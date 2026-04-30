@@ -9,8 +9,8 @@
 <style>
 body{font-family:system-ui;padding:20px;background:#f4f6f9}
 .card{background:white;padding:15px;margin-bottom:15px;border-radius:10px}
-button{padding:10px;border:none;background:#2f9e44;color:white;border-radius:8px;cursor:pointer}
-input{padding:8px;width:100%;margin-bottom:10px}
+button{padding:8px 12px;border:none;background:#2f9e44;color:white;border-radius:6px;cursor:pointer;margin-right:5px}
+input{padding:6px;width:100%;margin-bottom:10px}
 </style>
 
 </head>
@@ -59,8 +59,6 @@ async function initApp() {
             scopes: ["User.Read", "Sites.ReadWrite.All"]
         });
     }
-
-    document.getElementById("output").innerText = "Sessão iniciada";
 }
 
 async function getToken() {
@@ -103,6 +101,8 @@ async function criarAccrual() {
     });
 
     document.getElementById("output").innerText = "Accrual criado";
+
+    carregarAccruals();
 }
 
 // 🔥 LISTAR
@@ -129,12 +129,61 @@ async function carregarAccruals() {
             <div style="border-bottom:1px solid #ddd;padding:10px 0">
                 <b>${f.Fornecedor}</b><br>
                 ${f.ValorEstimado} €<br>
-                Estado: ${f.Estado}
+                Estado: ${f.Estado}<br><br>
+
+                <button onclick="editarAccrual(${item.id}, '${f.Fornecedor}', ${f.ValorEstimado})">Editar</button>
+                <button onclick="apagarAccrual(${item.id})">Apagar</button>
             </div>
         `;
     });
 
     document.getElementById("lista").innerHTML = html;
+}
+
+// 🔥 EDITAR
+async function editarAccrual(id, fornecedorAtual, valorAtual) {
+
+    const novoFornecedor = prompt("Fornecedor:", fornecedorAtual);
+    const novoValor = prompt("Valor:", valorAtual);
+
+    const token = await getToken();
+
+    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items/${id}/fields`;
+
+    const body = {
+        Fornecedor: novoFornecedor,
+        ValorEstimado: parseFloat(novoValor)
+    };
+
+    await fetch(url, {
+        method: "PATCH",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    });
+
+    carregarAccruals();
+}
+
+// 🔥 APAGAR
+async function apagarAccrual(id) {
+
+    if (!confirm("Apagar este accrual?")) return;
+
+    const token = await getToken();
+
+    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items/${id}`;
+
+    await fetch(url, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    carregarAccruals();
 }
 
 initApp();
