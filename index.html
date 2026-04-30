@@ -328,7 +328,9 @@ textarea{
         <div class="form-grid">
             <label>Fornecedor<input id="despFornecedor"></label>
             <label>Valor<input id="despValor" type="number"></label>
-            <label>Categoria<input id="despCategoria" placeholder="Ex: Combustível"></label>
+            <label>Categoria
+<select id="despCategoria"></select>
+</label>
             <label>Data<input id="despData" type="date"></label>
             <label class="full">Descrição<textarea id="despDescricao"></textarea></label>
             <button class="action full" onclick="addDespesa()">Guardar despesa</button>
@@ -342,7 +344,9 @@ textarea{
         <div class="form-grid">
             <label>Fornecedor<input id="accFornecedor"></label>
             <label>Valor estimado<input id="accValor" type="number"></label>
-            <label>Categoria<input id="accCategoria" placeholder="Ex: Serviços"></label>
+            <label>Categoria
+<select id="accCategoria"></select>
+</label>
             <label>Data prevista<input id="accData" type="date"></label>
             <label>Mês referência<input id="accMes" type="number" min="1" max="12"></label>
             <label>Ano referência<input id="accAno" type="number"></label>
@@ -418,7 +422,8 @@ async function init(){
 
     document.getElementById("user").innerText=userEmail;
 
-    load();
+    await loadCategorias();
+load();
 }
 
 async function token(){
@@ -754,7 +759,51 @@ function renderHistory(){
 
     document.getElementById("historyTable").innerHTML=rows || `<tr><td colspan="5">Sem movimentos.</td></tr>`;
 }
+async function loadCategorias(){
 
+    const t = await token();
+
+    // ===== DESPESAS =====
+    const resDesp = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/columns`,
+        { headers:{ Authorization:`Bearer ${t}` } }
+    );
+
+    const dataDesp = await resDesp.json();
+
+    const colDesp = dataDesp.value.find(c => c.name === "Categoria");
+
+    if(colDesp && colDesp.choice){
+        const select = document.getElementById("despCategoria");
+
+        select.innerHTML = `<option value="">Selecionar</option>`;
+
+        colDesp.choice.choices.forEach(opt=>{
+            select.innerHTML += `<option value="${opt}">${opt}</option>`;
+        });
+    }
+
+
+    // ===== ACCRUALS =====
+    const resAcc = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/columns`,
+        { headers:{ Authorization:`Bearer ${t}` } }
+    );
+
+    const dataAcc = await resAcc.json();
+
+    const colAcc = dataAcc.value.find(c => c.name === "Categoria");
+
+    if(colAcc && colAcc.choice){
+        const select = document.getElementById("accCategoria");
+
+        select.innerHTML = `<option value="">Selecionar</option>`;
+
+        colAcc.choice.choices.forEach(opt=>{
+            select.innerHTML += `<option value="${opt}">${opt}</option>`;
+        });
+    }
+}
 init();
 </script>
 
