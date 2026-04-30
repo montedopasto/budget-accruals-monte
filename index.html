@@ -417,9 +417,8 @@ async function init(){
         userEmail = acc[0].username;
         document.getElementById("user").innerText = userEmail;
 
-        await token();        // 👈 força MSAL a estabilizar
-await loadCategorias();
-await load();
+        await loadCategorias();
+        await load();
         return;
     }
 
@@ -435,7 +434,7 @@ await load();
         document.getElementById("user").innerText = userEmail;
 
         await loadCategorias();
-        load();
+        await load();
 
     }catch(e){
         console.error("LOGIN ERROR", e);
