@@ -1,2 +1,96 @@
-<h1>App Monte do Pasto</h1>
-<p>Se estás a ver isto, já estamos online 😎</p>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teste Graph Monte do Pasto</title>
+
+<script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+
+<style>
+body{font-family:system-ui;margin:20px;background:#f4f6f9}
+button{padding:10px 16px;border:none;border-radius:8px;background:#2f9e44;color:#fff;cursor:pointer;margin-right:10px}
+pre{background:#111;color:#0f0;padding:15px;border-radius:10px;overflow:auto;max-height:400px}
+</style>
+</head>
+
+<body>
+
+<h2>Teste ligação SharePoint (Graph)</h2>
+
+<button onclick="login()">Login</button>
+<button onclick="getData()">Testar Accruals</button>
+
+<pre id="output">Sem dados...</pre>
+
+<script>
+
+// 🔴 METE AQUI OS TEUS VALORES
+const clientId = "COLOCA_CLIENT_ID";
+const tenantId = "COLOCA_TENANT_ID";
+const siteId = "COLOCA_SITE_ID"; // exemplo: xxx.sharepoint.com,xxx,xxx
+
+const listName = "AccrualsColaboradores";
+
+// CONFIG MSAL
+const msalConfig = {
+    auth: {
+        clientId: clientId,
+        authority: `https://login.microsoftonline.com/${tenantId}`,
+        redirectUri: window.location.origin
+    }
+};
+
+const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+// LOGIN
+async function login() {
+    const response = await msalInstance.loginPopup({
+        scopes: ["User.Read", "Sites.ReadWrite.All"]
+    });
+
+    document.getElementById("output").innerText = "Login OK: " + response.account.username;
+}
+
+// TOKEN
+async function getToken() {
+    const account = msalInstance.getAllAccounts()[0];
+
+    const response = await msalInstance.acquireTokenSilent({
+        scopes: ["User.Read", "Sites.ReadWrite.All"],
+        account
+    });
+
+    return response.accessToken;
+}
+
+// TESTE SHAREPOINT
+async function getData() {
+
+    try {
+
+        const token = await getToken();
+
+        const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listName}/items?$expand=fields`;
+
+        const res = await fetch(url, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const data = await res.json();
+
+        document.getElementById("output").innerText =
+            JSON.stringify(data, null, 2);
+
+    } catch (err) {
+        document.getElementById("output").innerText =
+            "ERRO: " + err.message;
+    }
+}
+
+</script>
+
+</body>
+</html>
