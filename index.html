@@ -445,37 +445,27 @@ async function init(){
 }
 
 async function token(){
-    const acc=msalInstance.getAllAccounts()[0];
-    const res=await msalInstance.acquireTokenSilent({scopes:["User.Read","Sites.ReadWrite.All"],account:acc});
-    return res.accessToken;
-}
 
-async function graphGet(list){
-    const t=await token();
-    const res=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${list}/items?$expand=fields`,{
-        headers:{Authorization:`Bearer ${t}`}
-    });
-    return await res.json();
-}
+    const acc = msalInstance.getAllAccounts()[0];
 
-async function graphPost(list,fields,fallbackFields){
-    const t=await token();
-
-    let res=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${list}/items`,{
-        method:"POST",
-        headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
-        body:JSON.stringify({fields})
-    });
-
-    if(!res.ok && fallbackFields){
-        res=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${list}/items`,{
-            method:"POST",
-            headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"},
-            body:JSON.stringify({fields:fallbackFields})
+    try{
+        const res = await msalInstance.acquireTokenSilent({
+            scopes:["User.Read","Sites.ReadWrite.All"],
+            account: acc
         });
-    }
 
-    return res;
+        return res.accessToken;
+
+    }catch(e){
+
+        console.warn("Token silent falhou, fallback popup");
+
+        const res = await msalInstance.acquireTokenPopup({
+            scopes:["User.Read","Sites.ReadWrite.All"]
+        });
+
+        return res.accessToken;
+    }
 }
 
 async function addDespesa(){
