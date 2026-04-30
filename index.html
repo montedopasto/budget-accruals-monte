@@ -470,7 +470,80 @@ async function token(){
         return res.accessToken;
     }
 }
+async function graphGet(listName){
 
+    const t = await token();
+
+    if(!t){
+        throw new Error("Sem token válido");
+    }
+
+    const res = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listName}/items?expand=fields`,
+        {
+            headers:{
+                Authorization: `Bearer ${t}`
+            }
+        }
+    );
+
+    if(!res.ok){
+        const txt = await res.text();
+        console.error("Graph GET erro:", txt);
+        throw new Error("Erro Graph GET");
+    }
+
+    return await res.json();
+}
+
+
+async function graphPost(listName, full, fallback){
+
+    const t = await token();
+
+    const res = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listName}/items`,
+        {
+            method:"POST",
+            headers:{
+                Authorization:`Bearer ${t}`,
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+                fields: full
+            })
+        }
+    );
+
+    if(!res.ok){
+
+        console.warn("Falhou full → fallback");
+
+        const res2 = await fetch(
+            `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listName}/items`,
+            {
+                method:"POST",
+                headers:{
+                    Authorization:`Bearer ${t}`,
+                    "Content-Type":"application/json"
+                },
+                body: JSON.stringify({
+                    fields: fallback
+                })
+            }
+        );
+
+        if(!res2.ok){
+            const txt = await res2.text();
+            console.error("Graph POST erro:", txt);
+            throw new Error("Erro Graph POST");
+        }
+
+        return await res2.json();
+    }
+
+    return await res.json();
+}
 async function addDespesa(){
     const fornecedor=document.getElementById("despFornecedor").value.trim();
     const valor=parseFloat(document.getElementById("despValor").value);
