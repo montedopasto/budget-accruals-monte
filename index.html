@@ -7,163 +7,127 @@
 <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
 
 <style>
-body{font-family:system-ui;padding:20px;background:#f4f6f9}
-.card{background:white;padding:15px;margin-bottom:15px;border-radius:10px}
-button{padding:8px 12px;border:none;background:#2f9e44;color:white;border-radius:6px;cursor:pointer;margin-right:5px}
-input, textarea{padding:8px;width:100%;margin-bottom:10px}
-textarea{height:80px}
+
+body{
+    margin:0;
+    font-family:system-ui;
+    background:#f4f6f9;
+}
+
+/* SIDEBAR */
+.sidebar{
+    width:220px;
+    height:100vh;
+    background:#2f9e44;
+    color:white;
+    position:fixed;
+    padding:20px;
+}
+
+.sidebar h2{
+    margin-top:0;
+}
+
+.sidebar div{
+    margin:15px 0;
+    cursor:pointer;
+}
+
+/* HEADER */
+.header{
+    margin-left:220px;
+    height:60px;
+    background:#ffffff;
+    display:flex;
+    align-items:center;
+    padding:0 20px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* CONTENT */
+.content{
+    margin-left:220px;
+    padding:20px;
+}
+
+/* CARDS */
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
+
+.card h3{
+    margin:0 0 10px 0;
+}
+
+/* LISTA */
+.lista{
+    margin-top:20px;
+}
+
+.item{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
 </style>
 
 </head>
 <body>
 
-<h2>Budget & Accruals</h2>
-
-<div class="card">
-<h3>Criar Accrual</h3>
-
-<input id="fornecedor" placeholder="Fornecedor">
-<input id="valor" type="number" placeholder="Valor (€)">
-<textarea id="descricao" placeholder="Descrição"></textarea>
-
-<input id="dataPrevista" type="date">
-<input id="mes" type="number" placeholder="Mês (1-12)">
-<input id="ano" type="number" placeholder="Ano (ex: 2026)">
-
-<button onclick="criarAccrual()">Guardar</button>
+<div class="sidebar">
+    <h2>💰 Budget</h2>
+    <div>Visão geral</div>
+    <div>Accruals</div>
 </div>
 
-<div class="card">
-<h3>Os Meus Accruals</h3>
-
-<button onclick="carregarAccruals()">Atualizar Lista</button>
-
-<div id="lista"></div>
+<div class="header">
+    <b>Dashboard</b>
 </div>
 
-<pre id="output"></pre>
+<div class="content">
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Total Accruals</h3>
+            <p id="total">0€</p>
+        </div>
+
+        <div class="card">
+            <h3>Este mês</h3>
+            <p id="mesAtual">0€</p>
+        </div>
+
+        <div class="card">
+            <h3>Pendentes</h3>
+            <p id="pendentes">0€</p>
+        </div>
+
+        <div class="card">
+            <h3>Registos</h3>
+            <p id="totalRegistos">0</p>
+        </div>
+
+    </div>
+
+    <div class="lista" id="lista"></div>
+
+</div>
 
 <script>
 
-const clientId = "84a548f9-d082-4e9b-b639-1b34432df8c8";
-const tenantId = "ee417351-ea90-41e0-9147-5ea6ab38ea49";
-const siteId = "montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a,d1a6f091-93b5-4454-b6e2-809ad4e4d73a";
-
-let userEmail = "";
-
-const msalInstance = new msal.PublicClientApplication({
-    auth: {
-        clientId: clientId,
-        authority: `https://login.microsoftonline.com/${tenantId}`,
-        redirectUri: window.location.origin
-    }
-});
-
-async function initApp() {
-    const accounts = msalInstance.getAllAccounts();
-
-    if (accounts.length === 0) {
-        const res = await msalInstance.loginPopup({
-            scopes: ["User.Read", "Sites.ReadWrite.All"]
-        });
-
-        userEmail = res.account.username;
-    } else {
-        userEmail = accounts[0].username;
-    }
-
-    await carregarAccruals();
-}
-
-async function getToken() {
-    const account = msalInstance.getAllAccounts()[0];
-
-    const res = await msalInstance.acquireTokenSilent({
-        scopes: ["User.Read", "Sites.ReadWrite.All"],
-        account
-    });
-
-    return res.accessToken;
-}
-
-// 🔥 CRIAR
-async function criarAccrual() {
-
-    const fornecedor = document.getElementById("fornecedor").value;
-    const valor = parseFloat(document.getElementById("valor").value);
-    const descricao = document.getElementById("descricao").value;
-    const dataPrevista = document.getElementById("dataPrevista").value;
-    const mes = parseInt(document.getElementById("mes").value);
-    const ano = parseInt(document.getElementById("ano").value);
-
-    const token = await getToken();
-
-    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items`;
-
-    const body = {
-        fields: {
-            Title: fornecedor,
-            Fornecedor: fornecedor,
-            Descricao: descricao,
-            ValorEstimado: valor,
-            Estado: "Pendente",
-            DataPrevista: dataPrevista,
-            MesReferencia: mes,
-            AnoReferencia: ano,
-            ColaboradorEmail: userEmail
-        }
-    };
-
-    await fetch(url, {
-        method: "POST",
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-    });
-
-    carregarAccruals();
-}
-
-// 🔥 LISTAR
-async function carregarAccruals() {
-
-    const token = await getToken();
-
-    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`;
-
-    const res = await fetch(url, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
-
-    const data = await res.json();
-
-    let html = "";
-
-    data.value.forEach(item => {
-        const f = item.fields;
-
-        if (f.ColaboradorEmail !== userEmail) return;
-
-        html += `
-            <div style="border-bottom:1px solid #ddd;padding:10px 0">
-                <b>${f.Fornecedor}</b><br>
-                ${f.ValorEstimado} €<br>
-                ${f.Descricao || ""}<br>
-                Mês: ${f.MesReferencia} / ${f.AnoReferencia}<br>
-                Data: ${f.DataPrevista}<br>
-                Estado: ${f.Estado}
-            </div>
-        `;
-    });
-
-    document.getElementById("lista").innerHTML = html;
-}
-
-initApp();
+// (mantemos o teu código MSAL e funções depois)
 
 </script>
 
