@@ -448,8 +448,7 @@ async function token(){
     const acc = msalInstance.getAllAccounts()[0];
 
     if(!acc){
-        console.warn("Sem conta autenticada");
-        return null;
+        throw new Error("Sem conta autenticada");
     }
 
     try{
@@ -462,7 +461,7 @@ async function token(){
 
     }catch(e){
 
-        console.warn("Silent falhou → abrir popup");
+        console.warn("Silent falhou → popup");
 
         const res = await msalInstance.acquireTokenPopup({
             scopes:["User.Read","Sites.ReadWrite.All"]
