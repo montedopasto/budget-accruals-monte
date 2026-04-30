@@ -56,7 +56,7 @@ async function getData() {
     const token = await getToken();
 
     // TESTE 1: ver info do site
-    const url = `https://graph.microsoft.com/v1.0/sites/montedopastopt.sharepoint.com:/sites/BudgetAccrualControlMontedoPasto`;
+    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`;
 
     const res = await fetch(url, {
         headers: {
