@@ -405,11 +405,14 @@ function showSection(id,btn){
     if(id==="historico") renderHistory();
 }
 
+let loginInProgress = false;
+
 async function init(){
+
+    if(loginInProgress) return;
 
     const acc = msalInstance.getAllAccounts();
 
-    // 👇 se já está autenticado
     if(acc.length > 0){
         userEmail = acc[0].username;
         document.getElementById("user").innerText = userEmail;
@@ -419,10 +422,12 @@ async function init(){
         return;
     }
 
-    // 👇 login simples (SEM redirect)
     try{
+        loginInProgress = true;
+
         const res = await msalInstance.loginPopup({
-            scopes:["User.Read","Sites.ReadWrite.All"]
+            scopes:["User.Read","Sites.ReadWrite.All"],
+            prompt:"select_account"
         });
 
         userEmail = res.account.username;
@@ -434,6 +439,8 @@ async function init(){
     }catch(e){
         console.error("LOGIN ERROR", e);
         document.getElementById("user").innerText = "Erro login";
+    }finally{
+        loginInProgress = false;
     }
 }
 
