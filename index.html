@@ -560,7 +560,7 @@ async function load(){
         movimentos.push({
             tipo:"Accrual",
             fornecedor:f.Fornecedor||"-",
-            categoria:f.Categoria||"Sem categoria",
+            categoria:(f.Categoria?.Value)||"Sem categoria",
             valor,
             data
         });
