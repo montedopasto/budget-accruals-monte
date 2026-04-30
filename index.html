@@ -14,7 +14,7 @@
 body{
     margin:0;
     font-family:Inter, system-ui;
-    background:#f3f5fb;
+    background:#f6f8fc;
 }
 
 /* HEADER */
@@ -28,39 +28,47 @@ body{
     border-bottom:1px solid #e5e7eb;
 }
 
-.logo{font-weight:700}
+.logo{
+    font-weight:700;
+}
 
-/* LAYOUT */
-.wrapper{
+/* GRID PRINCIPAL */
+.layout{
     display:grid;
     grid-template-columns:1fr 320px;
     gap:20px;
     padding:20px;
 }
 
-/* CARDS */
+/* CARD */
 .card{
     background:white;
-    border-radius:18px;
+    border-radius:20px;
     padding:20px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.05);
+    box-shadow:0 10px 30px rgba(0,0,0,0.05);
 }
 
-/* KPI ROW */
+/* KPIS */
 .kpis{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
+    display:flex;
     gap:15px;
 }
 
 .kpi{
-    padding:15px;
+    flex:1;
+    background:#f9fafb;
     border-radius:14px;
-    background:#f8fafc;
-    text-align:center;
+    padding:15px;
 }
 
-.kpi b{font-size:20px}
+.kpi span{
+    font-size:12px;
+    color:#94a3b8;
+}
+
+.kpi b{
+    font-size:22px;
+}
 
 /* MAIN GRID */
 .main{
@@ -80,14 +88,18 @@ body{
     height:260px;
 }
 
-/* SIDE */
-.side .row{
-    display:flex;
-    justify-content:space-between;
-    margin:10px 0;
+/* RIGHT SIDE */
+.side .section{
+    margin-bottom:20px;
 }
 
-.item{
+.row{
+    display:flex;
+    justify-content:space-between;
+    margin:8px 0;
+}
+
+.mov{
     display:flex;
     justify-content:space-between;
     padding:10px 0;
@@ -98,6 +110,7 @@ body{
 .red{color:#ef4444}
 .orange{color:#f97316}
 .green{color:#22c55e}
+.gray{color:#94a3b8}
 
 </style>
 </head>
@@ -109,16 +122,30 @@ body{
     <div id="user"></div>
 </div>
 
-<div class="wrapper">
+<div class="layout">
 
+<!-- LEFT -->
 <div>
 
 <div class="card">
 
 <div class="kpis">
-<div class="kpi">Despesas<br><b id="despesas">0€</b></div>
-<div class="kpi">Accruals<br><b id="accruals">0€</b></div>
-<div class="kpi">Budget<br><b id="budget">0€</b></div>
+
+<div class="kpi">
+<span>Despesas</span><br>
+<b id="despesas">0€</b>
+</div>
+
+<div class="kpi">
+<span>Accruals</span><br>
+<b id="accruals">0€</b>
+</div>
+
+<div class="kpi">
+<span>Budget</span><br>
+<b id="budget">0€</b>
+</div>
+
 </div>
 
 <div class="main">
@@ -137,16 +164,19 @@ body{
 
 </div>
 
+<!-- RIGHT -->
 <div class="side">
 
-<div class="card">
-<b>Resumo</b>
-<div class="row"><span>Despesas</span><span id="d1">0€</span></div>
-<div class="row"><span>Accruals</span><span id="d2">0€</span></div>
-<div class="row"><span>Disponível</span><span id="d3">0€</span></div>
+<div class="card section">
+<b>Overview</b>
+
+<div class="row"><span>Despesas</span><span id="r1">0€</span></div>
+<div class="row"><span>Accruals</span><span id="r2">0€</span></div>
+<div class="row"><span>Disponível</span><span id="r3">0€</span></div>
+
 </div>
 
-<div class="card">
+<div class="card section">
 <b>Movimentos</b>
 <div id="movimentos"></div>
 </div>
@@ -199,7 +229,7 @@ let mov="";
 
 const ano=new Date().getFullYear();
 
-/* ACCRUAL */
+/* ACCRUALS */
 const a=await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
 const da=await a.json();
 
@@ -208,7 +238,7 @@ const f=i.fields||{};
 if(f.ColaboradorEmail!==userEmail)return;
 const v=parseFloat(f.ValorEstimado)||0;
 accruals+=v;
-mov+=`<div class="item"><span>${f.Fornecedor}</span><span class="orange">+${v}€</span></div>`;
+mov+=`<div class="mov"><span>${f.Fornecedor}</span><span class="orange">+${v}€</span></div>`;
 });
 
 /* DESPESAS */
@@ -220,7 +250,7 @@ const f=i.fields||{};
 if(f.ColaboradorEmail!==userEmail)return;
 const v=parseFloat(f.Valor)||0;
 despesas+=v;
-mov+=`<div class="item"><span>${f.Fornecedor}</span><span class="red">-${v}€</span></div>`;
+mov+=`<div class="mov"><span>${f.Fornecedor}</span><span class="red">-${v}€</span></div>`;
 });
 
 /* BUDGET */
@@ -239,13 +269,13 @@ document.getElementById("despesas").innerText=despesas+"€";
 document.getElementById("accruals").innerText=accruals+"€";
 document.getElementById("budget").innerText=budget+"€";
 
-document.getElementById("d1").innerText=despesas+"€";
-document.getElementById("d2").innerText=accruals+"€";
-document.getElementById("d3").innerText=(budget-despesas-accruals)+"€";
+document.getElementById("r1").innerText=despesas+"€";
+document.getElementById("r2").innerText=accruals+"€";
+document.getElementById("r3").innerText=(budget-despesas-accruals)+"€";
 
 document.getElementById("movimentos").innerHTML=mov;
 
-/* LINE CHART */
+/* LINE */
 if(lineChart) lineChart.destroy();
 
 lineChart=new Chart(document.getElementById("lineChart"),{
