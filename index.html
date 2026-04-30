@@ -10,7 +10,8 @@
 body{font-family:system-ui;padding:20px;background:#f4f6f9}
 .card{background:white;padding:15px;margin-bottom:15px;border-radius:10px}
 button{padding:8px 12px;border:none;background:#2f9e44;color:white;border-radius:6px;cursor:pointer;margin-right:5px}
-input{padding:8px;width:100%;margin-bottom:10px}
+input, textarea{padding:8px;width:100%;margin-bottom:10px}
+textarea{height:80px}
 </style>
 
 </head>
@@ -23,8 +24,11 @@ input{padding:8px;width:100%;margin-bottom:10px}
 
 <input id="fornecedor" placeholder="Fornecedor">
 <input id="valor" type="number" placeholder="Valor (€)">
+<textarea id="descricao" placeholder="Descrição"></textarea>
+
 <input id="dataPrevista" type="date">
 <input id="mes" type="number" placeholder="Mês (1-12)">
+<input id="ano" type="number" placeholder="Ano (ex: 2026)">
 
 <button onclick="criarAccrual()">Guardar</button>
 </div>
@@ -82,12 +86,15 @@ async function getToken() {
     return res.accessToken;
 }
 
+// 🔥 CRIAR
 async function criarAccrual() {
 
     const fornecedor = document.getElementById("fornecedor").value;
     const valor = parseFloat(document.getElementById("valor").value);
+    const descricao = document.getElementById("descricao").value;
     const dataPrevista = document.getElementById("dataPrevista").value;
     const mes = parseInt(document.getElementById("mes").value);
+    const ano = parseInt(document.getElementById("ano").value);
 
     const token = await getToken();
 
@@ -97,10 +104,12 @@ async function criarAccrual() {
         fields: {
             Title: fornecedor,
             Fornecedor: fornecedor,
+            Descricao: descricao,
             ValorEstimado: valor,
             Estado: "Pendente",
             DataPrevista: dataPrevista,
             MesReferencia: mes,
+            AnoReferencia: ano,
             ColaboradorEmail: userEmail
         }
     };
@@ -117,6 +126,7 @@ async function criarAccrual() {
     carregarAccruals();
 }
 
+// 🔥 LISTAR
 async function carregarAccruals() {
 
     const token = await getToken();
@@ -142,7 +152,8 @@ async function carregarAccruals() {
             <div style="border-bottom:1px solid #ddd;padding:10px 0">
                 <b>${f.Fornecedor}</b><br>
                 ${f.ValorEstimado} €<br>
-                Mês: ${f.MesReferencia}<br>
+                ${f.Descricao || ""}<br>
+                Mês: ${f.MesReferencia} / ${f.AnoReferencia}<br>
                 Data: ${f.DataPrevista}<br>
                 Estado: ${f.Estado}
             </div>
