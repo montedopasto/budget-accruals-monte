@@ -13,12 +13,14 @@
 
 <button onclick="login()">Login</button>
 <button onclick="getData()">Testar Accruals</button>
+
 <h3>Criar Accrual</h3>
 
 <input id="fornecedor" placeholder="Fornecedor"><br><br>
 <input id="valor" type="number" placeholder="Valor (€)"><br><br>
 
 <button onclick="criarAccrual()">Guardar Accrual</button>
+
 <pre id="output"></pre>
 
 <script>
@@ -26,8 +28,6 @@
 const clientId = "84a548f9-d082-4e9b-b639-1b34432df8c8";
 const tenantId = "ee417351-ea90-41e0-9147-5ea6ab38ea49";
 const siteId = "montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a,d1a6f091-93b5-4454-b6e2-809ad4e4d73a";
-
-const listName = "AccrualsColaboradores";
 
 const msalInstance = new msal.PublicClientApplication({
     auth: {
@@ -42,7 +42,8 @@ async function login() {
         scopes: ["User.Read", "Sites.ReadWrite.All"]
     });
 
-    document.getElementById("output").innerText = "Login OK: " + res.account.username;
+    document.getElementById("output").innerText =
+        "Login OK: " + res.account.username;
 }
 
 async function getToken() {
@@ -57,10 +58,8 @@ async function getToken() {
 }
 
 async function getData() {
-
     const token = await getToken();
 
-    // TESTE 1: ver info do site
     const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`;
 
     const res = await fetch(url, {
@@ -75,7 +74,6 @@ async function getData() {
         JSON.stringify(data, null, 2);
 }
 
-</script>
 async function criarAccrual() {
 
     const fornecedor = document.getElementById("fornecedor").value;
@@ -108,6 +106,9 @@ async function criarAccrual() {
     document.getElementById("output").innerText =
         "Accrual criado com sucesso:\n" + JSON.stringify(data, null, 2);
 }
+
+</script>
+
 </body>
 </html>
 
