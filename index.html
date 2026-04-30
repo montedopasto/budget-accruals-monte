@@ -2,23 +2,38 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Teste Monte do Pasto</title>
+<title>Budget & Accruals</title>
 
 <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+
+<style>
+body{font-family:system-ui;padding:20px;background:#f4f6f9}
+.card{background:white;padding:15px;margin-bottom:15px;border-radius:10px}
+button{padding:10px;border:none;background:#2f9e44;color:white;border-radius:8px;cursor:pointer}
+input{padding:8px;width:100%;margin-bottom:10px}
+</style>
 
 </head>
 <body>
 
-<h2>Teste ligação SharePoint</h2>
+<h2>Budget & Accruals</h2>
 
-<button onclick="getData()">Testar Accruals</button>
-
+<div class="card">
 <h3>Criar Accrual</h3>
 
-<input id="fornecedor" placeholder="Fornecedor"><br><br>
-<input id="valor" type="number" placeholder="Valor (€)"><br><br>
+<input id="fornecedor" placeholder="Fornecedor">
+<input id="valor" type="number" placeholder="Valor (€)">
 
-<button onclick="criarAccrual()">Guardar Accrual</button>
+<button onclick="criarAccrual()">Guardar</button>
+</div>
+
+<div class="card">
+<h3>Lista de Accruals</h3>
+
+<button onclick="carregarAccruals()">Atualizar Lista</button>
+
+<div id="lista"></div>
+</div>
 
 <pre id="output"></pre>
 
@@ -36,22 +51,16 @@ const msalInstance = new msal.PublicClientApplication({
     }
 });
 
-// 🔥 LOGIN AUTOMÁTICO
 async function initApp() {
-
     const accounts = msalInstance.getAllAccounts();
 
-    if (accounts.length > 0) {
-        document.getElementById("output").innerText =
-            "Login automático: " + accounts[0].username;
-    } else {
-        const res = await msalInstance.loginPopup({
+    if (accounts.length === 0) {
+        await msalInstance.loginPopup({
             scopes: ["User.Read", "Sites.ReadWrite.All"]
         });
-
-        document.getElementById("output").innerText =
-            "Login manual: " + res.account.username;
     }
+
+    document.getElementById("output").innerText = "Sessão iniciada";
 }
 
 async function getToken() {
@@ -65,23 +74,7 @@ async function getToken() {
     return res.accessToken;
 }
 
-async function getData() {
-    const token = await getToken();
-
-    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`;
-
-    const res = await fetch(url, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
-
-    const data = await res.json();
-
-    document.getElementById("output").innerText =
-        JSON.stringify(data, null, 2);
-}
-
+// 🔥 CRIAR
 async function criarAccrual() {
 
     const fornecedor = document.getElementById("fornecedor").value;
@@ -100,7 +93,7 @@ async function criarAccrual() {
         }
     };
 
-    const res = await fetch(url, {
+    await fetch(url, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${token}`,
@@ -109,13 +102,41 @@ async function criarAccrual() {
         body: JSON.stringify(body)
     });
 
-    const data = await res.json();
-
-    document.getElementById("output").innerText =
-        "Accrual criado com sucesso:\n" + JSON.stringify(data, null, 2);
+    document.getElementById("output").innerText = "Accrual criado";
 }
 
-// 🚀 ARRANQUE AUTOMÁTICO
+// 🔥 LISTAR
+async function carregarAccruals() {
+
+    const token = await getToken();
+
+    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`;
+
+    const res = await fetch(url, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    const data = await res.json();
+
+    let html = "";
+
+    data.value.forEach(item => {
+        const f = item.fields;
+
+        html += `
+            <div style="border-bottom:1px solid #ddd;padding:10px 0">
+                <b>${f.Fornecedor}</b><br>
+                ${f.ValorEstimado} €<br>
+                Estado: ${f.Estado}
+            </div>
+        `;
+    });
+
+    document.getElementById("lista").innerHTML = html;
+}
+
 initApp();
 
 </script>
