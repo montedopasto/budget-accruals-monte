@@ -413,24 +413,25 @@ async function init(){
 
     const acc = msalInstance.getAllAccounts();
 
-    if(acc.length > 0){
-        userEmail = acc[0].username;
-        document.getElementById("user").innerText = userEmail;
-
-        await loadCategorias();
-        await load();
-        return;
-    }
-
     try{
         loginInProgress = true;
 
-        const res = await msalInstance.loginPopup({
-            scopes:["User.Read","Sites.ReadWrite.All"],
-            prompt:"select_account"
-        });
+        if(acc.length === 0){
 
-        userEmail = res.account.username;
+            const res = await msalInstance.loginPopup({
+                scopes:["User.Read","Sites.ReadWrite.All"],
+                prompt:"select_account"
+            });
+
+            userEmail = res.account.username;
+
+        }else{
+            userEmail = acc[0].username;
+
+            // 👇 FORÇA TOKEN AQUI (CRÍTICO)
+            await token();
+        }
+
         document.getElementById("user").innerText = userEmail;
 
         await loadCategorias();
