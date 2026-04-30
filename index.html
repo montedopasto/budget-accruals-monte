@@ -390,7 +390,7 @@ let lineChart=null;
 let donutChart=null;
 
 const msalInstance=new msal.PublicClientApplication({
-    auth:{clientId,authority:`https://login.microsoftonline.com/${tenantId}`,redirectUri: window.location.origin + "/budget-accruals-monte/"}
+    auth:{clientId,authority:`https://login.microsoftonline.com/${tenantId}`,redirectUri: window.location.origin}
 });
 
 function euro(v){
