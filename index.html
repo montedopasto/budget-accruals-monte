@@ -414,23 +414,21 @@ function showSection(id,btn){
 }
 
 async function init(){
-    const acc=msalInstance.getAllAccounts();
+
+    await msalInstance.handleRedirectPromise();
+
+    const acc = msalInstance.getAllAccounts();
 
     if(acc.length===0){
-        const res=await msalInstance.loginPopup({scopes:["User.Read","Sites.ReadWrite.All"]});
-        userEmail=res.account.username;
-    }else{
-        userEmail=acc[0].username;
+        msalInstance.loginRedirect({
+            scopes:["User.Read","Sites.ReadWrite.All"]
+        });
+        return;
     }
 
-    document.getElementById("user").innerText=userEmail;
+    userEmail = acc[0].username;
 
-    const hoje=new Date();
-    document.getElementById("despData").value=hoje.toISOString().slice(0,10);
-    document.getElementById("accData").value=hoje.toISOString().slice(0,10);
-    document.getElementById("accMes").value=hoje.getMonth()+1;
-    document.getElementById("accAno").value=hoje.getFullYear();
-    document.getElementById("budgetAno").value=hoje.getFullYear();
+    document.getElementById("user").innerText=userEmail;
 
     load();
 }
