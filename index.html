@@ -468,7 +468,7 @@ async function addDespesa(){
         Title:fornecedor,
         Fornecedor:fornecedor,
         Valor:valor,
-        Categoria:document.getElementById("despCategoria").value.trim(),
+        Categoria:{ Value: document.getElementById("despCategoria").value.trim() },
         Descricao:document.getElementById("despDescricao").value.trim(),
         Data:document.getElementById("despData").value,
         ColaboradorEmail:userEmail
