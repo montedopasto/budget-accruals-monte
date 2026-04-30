@@ -417,8 +417,9 @@ async function init(){
         userEmail = acc[0].username;
         document.getElementById("user").innerText = userEmail;
 
-        await loadCategorias();
-        load();
+        await token();        // 👈 força MSAL a estabilizar
+await loadCategorias();
+await load();
         return;
     }
 
