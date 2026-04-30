@@ -10,7 +10,8 @@
 body{font-family:system-ui;padding:20px;background:#f4f6f9}
 .card{background:white;padding:15px;margin-bottom:15px;border-radius:10px}
 button{padding:8px 12px;border:none;background:#2f9e44;color:white;border-radius:6px;cursor:pointer;margin-right:5px}
-input{padding:6px;width:100%;margin-bottom:10px}
+input{padding:8px;width:100%;margin-bottom:10px}
+pre{white-space:pre-wrap}
 </style>
 
 </head>
@@ -43,6 +44,8 @@ const clientId = "84a548f9-d082-4e9b-b639-1b34432df8c8";
 const tenantId = "ee417351-ea90-41e0-9147-5ea6ab38ea49";
 const siteId = "montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a,d1a6f091-93b5-4454-b6e2-809ad4e4d73a";
 
+let userEmail = "";
+
 const msalInstance = new msal.PublicClientApplication({
     auth: {
         clientId: clientId,
@@ -51,9 +54,6 @@ const msalInstance = new msal.PublicClientApplication({
     }
 });
 
-let userEmail = "";
-
-// 🔐 INIT + CAPTURAR UTILIZADOR
 async function initApp() {
     const accounts = msalInstance.getAllAccounts();
 
@@ -63,12 +63,13 @@ async function initApp() {
         });
 
         userEmail = res.account.username;
-
     } else {
         userEmail = accounts[0].username;
     }
 
     document.getElementById("output").innerText = "Utilizador: " + userEmail;
+
+    await carregarAccruals();
 }
 
 async function getToken() {
@@ -82,11 +83,20 @@ async function getToken() {
     return res.accessToken;
 }
 
-// 🔥 CRIAR (AGORA COM EMAIL)
 async function criarAccrual() {
 
-    const fornecedor = document.getElementById("fornecedor").value;
+    const fornecedor = document.getElementById("fornecedor").value.trim();
     const valor = parseFloat(document.getElementById("valor").value);
+
+    if (!fornecedor) {
+        alert("Indica o fornecedor.");
+        return;
+    }
+
+    if (isNaN(valor) || valor <= 0) {
+        alert("Indica um valor válido.");
+        return;
+    }
 
     const token = await getToken();
 
@@ -102,7 +112,7 @@ async function criarAccrual() {
         }
     };
 
-    await fetch(url, {
+    const res = await fetch(url, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${token}`,
@@ -111,15 +121,27 @@ async function criarAccrual() {
         body: JSON.stringify(body)
     });
 
-    carregarAccruals();
+    const data = await res.json();
+
+    if (!res.ok) {
+        document.getElementById("output").innerText =
+            "ERRO AO CRIAR:\n" + JSON.stringify(data, null, 2);
+        return;
+    }
+
+    document.getElementById("fornecedor").value = "";
+    document.getElementById("valor").value = "";
+
+    document.getElementById("output").innerText = "Accrual criado com sucesso.";
+
+    await carregarAccruals();
 }
 
-// 🔥 LISTAR (FILTRADO)
 async function carregarAccruals() {
 
     const token = await getToken();
 
-    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields&$filter=fields/ColaboradorEmail eq '${userEmail}'`;
+    const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`;
 
     const res = await fetch(url, {
         headers: {
@@ -129,42 +151,65 @@ async function carregarAccruals() {
 
     const data = await res.json();
 
+    if (!res.ok) {
+        document.getElementById("output").innerText =
+            "ERRO AO CARREGAR LISTA:\n" + JSON.stringify(data, null, 2);
+        return;
+    }
+
     let html = "";
 
     data.value.forEach(item => {
         const f = item.fields;
 
+        if (f.ColaboradorEmail !== userEmail) {
+            return;
+        }
+
         html += `
             <div style="border-bottom:1px solid #ddd;padding:10px 0">
-                <b>${f.Fornecedor}</b><br>
-                ${f.ValorEstimado} €<br>
-                Estado: ${f.Estado}<br><br>
+                <b>${f.Fornecedor || ""}</b><br>
+                ${f.ValorEstimado || 0} €<br>
+                Estado: ${f.Estado || ""}<br><br>
 
-                <button onclick="editarAccrual(${item.id}, '${f.Fornecedor}', ${f.ValorEstimado})">Editar</button>
+                <button onclick="editarAccrual(${item.id}, '${f.Fornecedor || ""}', ${f.ValorEstimado || 0})">Editar</button>
                 <button onclick="apagarAccrual(${item.id})">Apagar</button>
             </div>
         `;
     });
 
+    if (html === "") {
+        html = "<p>Não existem accruals para este utilizador.</p>";
+    }
+
     document.getElementById("lista").innerHTML = html;
 }
 
-// 🔥 EDITAR
 async function editarAccrual(id, fornecedorAtual, valorAtual) {
 
     const novoFornecedor = prompt("Fornecedor:", fornecedorAtual);
     const novoValor = prompt("Valor:", valorAtual);
+
+    if (!novoFornecedor) return;
+
+    const valorConvertido = parseFloat(novoValor);
+
+    if (isNaN(valorConvertido) || valorConvertido <= 0) {
+        alert("Valor inválido.");
+        return;
+    }
 
     const token = await getToken();
 
     const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items/${id}/fields`;
 
     const body = {
+        Title: novoFornecedor,
         Fornecedor: novoFornecedor,
-        ValorEstimado: parseFloat(novoValor)
+        ValorEstimado: valorConvertido
     };
 
-    await fetch(url, {
+    const res = await fetch(url, {
         method: "PATCH",
         headers: {
             Authorization: `Bearer ${token}`,
@@ -173,10 +218,17 @@ async function editarAccrual(id, fornecedorAtual, valorAtual) {
         body: JSON.stringify(body)
     });
 
-    carregarAccruals();
+    const data = await res.json();
+
+    if (!res.ok) {
+        document.getElementById("output").innerText =
+            "ERRO AO EDITAR:\n" + JSON.stringify(data, null, 2);
+        return;
+    }
+
+    await carregarAccruals();
 }
 
-// 🔥 APAGAR
 async function apagarAccrual(id) {
 
     if (!confirm("Apagar este accrual?")) return;
@@ -185,14 +237,22 @@ async function apagarAccrual(id) {
 
     const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items/${id}`;
 
-    await fetch(url, {
+    const res = await fetch(url, {
         method: "DELETE",
         headers: {
             Authorization: `Bearer ${token}`
         }
     });
 
-    carregarAccruals();
+    if (!res.ok) {
+        const data = await res.json();
+
+        document.getElementById("output").innerText =
+            "ERRO AO APAGAR:\n" + JSON.stringify(data, null, 2);
+        return;
+    }
+
+    await carregarAccruals();
 }
 
 initApp();
