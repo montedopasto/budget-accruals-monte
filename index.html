@@ -505,7 +505,7 @@ async function addAccrual(){
         Title:fornecedor,
         Fornecedor:fornecedor,
         ValorEstimado:valor,
-        Categoria:document.getElementById("accCategoria").value.trim(),
+        Categoria:{ Value: document.getElementById("accCategoria").value.trim() },
         Descricao:document.getElementById("accDescricao").value.trim(),
         DataPrevista:document.getElementById("accData").value,
         MesReferencia:parseInt(document.getElementById("accMes").value),
