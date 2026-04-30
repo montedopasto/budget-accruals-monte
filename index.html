@@ -189,7 +189,19 @@ async function init(){
 function criarDespesa(){
     alert("Depois ligamos ao SharePoint");
 }
+const siteId = "montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a,d1a6f091-93b5-4454-b6e2-809ad4e4d73a";
 
+async function token(){
+
+    const acc = msalInstance.getAllAccounts()[0];
+
+    const res = await msalInstance.acquireTokenSilent({
+        scopes:["User.Read","Sites.ReadWrite.All"],
+        account:acc
+    });
+
+    return res.accessToken;
+}
 function criarAccrual(){
     alert("Depois ligamos ao SharePoint");
 }
