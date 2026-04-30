@@ -11,7 +11,6 @@
 
 <h2>Teste ligação SharePoint</h2>
 
-<button onclick="login()">Login</button>
 <button onclick="getData()">Testar Accruals</button>
 
 <h3>Criar Accrual</h3>
@@ -37,13 +36,22 @@ const msalInstance = new msal.PublicClientApplication({
     }
 });
 
-async function login() {
-    const res = await msalInstance.loginPopup({
-        scopes: ["User.Read", "Sites.ReadWrite.All"]
-    });
+// 🔥 LOGIN AUTOMÁTICO
+async function initApp() {
 
-    document.getElementById("output").innerText =
-        "Login OK: " + res.account.username;
+    const accounts = msalInstance.getAllAccounts();
+
+    if (accounts.length > 0) {
+        document.getElementById("output").innerText =
+            "Login automático: " + accounts[0].username;
+    } else {
+        const res = await msalInstance.loginPopup({
+            scopes: ["User.Read", "Sites.ReadWrite.All"]
+        });
+
+        document.getElementById("output").innerText =
+            "Login manual: " + res.account.username;
+    }
 }
 
 async function getToken() {
@@ -107,8 +115,10 @@ async function criarAccrual() {
         "Accrual criado com sucesso:\n" + JSON.stringify(data, null, 2);
 }
 
+// 🚀 ARRANQUE AUTOMÁTICO
+initApp();
+
 </script>
 
 </body>
 </html>
-
