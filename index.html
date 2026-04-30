@@ -5,7 +5,6 @@
 <title>Budget Control</title>
 
 <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -17,7 +16,7 @@ body{
 
 /* SIDEBAR */
 .sidebar{
-    width:230px;
+    width:220px;
     height:100vh;
     background:#f8fafc;
     position:fixed;
@@ -25,19 +24,9 @@ body{
     padding:20px;
 }
 
-.sidebar h2{
-    font-size:18px;
-    margin-bottom:30px;
-}
-
-.sidebar div{
-    margin:12px 0;
-    color:#334155;
-}
-
 /* HEADER */
 .header{
-    margin-left:240px;
+    margin-left:220px;
     height:60px;
     background:#2196f3;
     color:white;
@@ -49,9 +38,8 @@ body{
 
 /* CONTENT */
 .content{
-    margin-left:240px;
-    width:calc(100% - 240px);
-}
+    margin-left:220px;
+    width:calc(100% - 220px);
     padding:20px;
 }
 
@@ -117,29 +105,27 @@ body{
         </div>
 
         <div class="card">
-            <div class="title">Este mês</div>
-            <div class="value" id="mes">0€</div>
-        </div>
-
-        <div class="card">
-            <canvas id="chart"></canvas>
+            <div class="title">Registos</div>
+            <div class="value" id="count">0</div>
         </div>
     </div>
 
     <div class="row" style="margin-top:20px">
+
         <div class="card" style="flex:2">
             <b>Accruals</b>
             <div class="list" id="lista"></div>
         </div>
 
         <div class="card">
-            <b>Criar</b>
+            <b>Criar</b><br><br>
 
             <input id="fornecedor" placeholder="Fornecedor"><br><br>
             <input id="valor" type="number" placeholder="€"><br><br>
 
             <button onclick="criar()">Adicionar</button>
         </div>
+
     </div>
 
 </div>
@@ -223,9 +209,8 @@ async function load(){
     const data = await res.json();
 
     let total=0;
+    let count=0;
     let html="";
-
-    const valores=[];
 
     data.value.forEach(i=>{
 
@@ -233,9 +218,8 @@ async function load(){
 
         if(f.ColaboradorEmail!==userEmail) return;
 
-        total += f.ValorEstimado;
-
-        valores.push(f.ValorEstimado);
+        total += f.ValorEstimado || 0;
+        count++;
 
         html += `
         <div class="item">
@@ -246,15 +230,7 @@ async function load(){
 
     document.getElementById("lista").innerHTML = html;
     document.getElementById("total").innerText = total + "€";
-    document.getElementById("mes").innerText = total + "€";
-
-    new Chart(document.getElementById("chart"),{
-        type:'bar',
-        data:{
-            labels:valores.map((_,i)=>"A"+(i+1)),
-            datasets:[{data:valores}]
-        }
-    });
+    document.getElementById("count").innerText = count;
 }
 
 init();
