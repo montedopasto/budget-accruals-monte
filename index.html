@@ -72,6 +72,31 @@ body{
     transition:0.3s;
 }
 
+/* HISTÓRICO */
+.mov{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.mov-left{
+    display:flex;
+    flex-direction:column;
+}
+
+.mov-tipo{
+    font-size:12px;
+    color:#64748b;
+}
+
+.mov-valor{
+    font-weight:700;
+}
+
+.despesa{ color:#dc2626; }
+.accrual{ color:#2563eb; }
+
 /* SECTIONS */
 .hidden{
     display:none;
@@ -110,25 +135,13 @@ button{
 
 <div class="content">
 
-    <!-- DASHBOARD -->
     <div id="dashboard">
 
         <div class="row">
-            <div class="card">
-                Budget<br><b id="budget">0€</b>
-            </div>
-
-            <div class="card">
-                Despesas<br><b id="despesasTotal">0€</b>
-            </div>
-
-            <div class="card">
-                Accruals<br><b id="accrualTotal">0€</b>
-            </div>
-
-            <div class="card">
-                Diferença<br><b id="diferenca">0€</b>
-            </div>
+            <div class="card">Budget<br><b id="budget">0€</b></div>
+            <div class="card">Despesas<br><b id="despesasTotal">0€</b></div>
+            <div class="card">Accruals<br><b id="accrualTotal">0€</b></div>
+            <div class="card">Diferença<br><b id="diferenca">0€</b></div>
         </div>
 
         <div class="card">
@@ -136,15 +149,16 @@ button{
             <div class="progress">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
-            <div id="percentagem" style="margin-top:8px;"></div>
+            <div id="percentagem"></div>
+        </div>
+
+        <div class="card">
+            <b>Movimentos</b>
+            <div id="historico"></div>
         </div>
 
     </div>
-<div class="card">
-    <b>Movimentos</b>
-    <div id="historico"></div>
-</div>
-    <!-- DESPESAS -->
+
     <div id="despesas" class="hidden">
         <h3>Nova Despesa</h3>
         <input id="fornDespesa" placeholder="Fornecedor">
@@ -152,7 +166,6 @@ button{
         <button onclick="criarDespesa()">Guardar</button>
     </div>
 
-    <!-- ACCRUALS -->
     <div id="accruals" class="hidden">
         <h3>Novo Accrual</h3>
         <input id="fornAcc" placeholder="Fornecedor">
@@ -179,9 +192,9 @@ const msalInstance = new msal.PublicClientApplication({
 });
 
 function show(tab){
-    document.getElementById("dashboard").classList.add("hidden");
-    document.getElementById("despesas").classList.add("hidden");
-    document.getElementById("accruals").classList.add("hidden");
+    ["dashboard","despesas","accruals"].forEach(t=>{
+        document.getElementById(t).classList.add("hidden");
+    });
     document.getElementById(tab).classList.remove("hidden");
 }
 
@@ -203,13 +216,59 @@ async function init(){
 
 async function token(){
     const acc = msalInstance.getAllAccounts()[0];
-
     const res = await msalInstance.acquireTokenSilent({
         scopes:["User.Read","Sites.ReadWrite.All"],
         account:acc
     });
-
     return res.accessToken;
+}
+
+async function criarDespesa(){
+    const fornecedor = document.getElementById("fornDespesa").value;
+    const valor = parseFloat(document.getElementById("valorDespesa").value);
+    const t = await token();
+
+    await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/items`,{
+        method:"POST",
+        headers:{
+            Authorization:`Bearer ${t}`,
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            fields:{
+                Title:fornecedor,
+                Fornecedor:fornecedor,
+                Valor:valor,
+                ColaboradorEmail:userEmail
+            }
+        })
+    });
+
+    loadDashboard();
+}
+
+async function criarAccrual(){
+    const fornecedor = document.getElementById("fornAcc").value;
+    const valor = parseFloat(document.getElementById("valorAcc").value);
+    const t = await token();
+
+    await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items`,{
+        method:"POST",
+        headers:{
+            Authorization:`Bearer ${t}`,
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            fields:{
+                Title:fornecedor,
+                Fornecedor:fornecedor,
+                ValorEstimado:valor,
+                ColaboradorEmail:userEmail
+            }
+        })
+    });
+
+    loadDashboard();
 }
 
 async function loadDashboard(){
@@ -219,67 +278,76 @@ async function loadDashboard(){
     let totalAccrual = 0;
     let totalDespesas = 0;
     let budget = 0;
+    let movimentos = [];
 
     const anoAtual = new Date().getFullYear();
 
-    // ACCRUALS
-    const resAcc = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`,{
-        headers:{Authorization:`Bearer ${t}`}
-    });
-
-    const dataAcc = await resAcc.json();
+    const acc = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
+    const dataAcc = await acc.json();
 
     if(dataAcc.value){
         dataAcc.value.forEach(i=>{
             const f = i.fields || {};
             if(f.ColaboradorEmail !== userEmail) return;
-            totalAccrual += parseFloat(f.ValorEstimado) || 0;
+            const val = parseFloat(f.ValorEstimado)||0;
+            totalAccrual += val;
+            movimentos.push({tipo:"Accrual", fornecedor:f.Fornecedor, valor:val, data:new Date(i.createdDateTime)});
         });
     }
 
-    // DESPESAS
-    const resDesp = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/items?$expand=fields`,{
-        headers:{Authorization:`Bearer ${t}`}
-    });
-
-    const dataDesp = await resDesp.json();
+    const desp = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
+    const dataDesp = await desp.json();
 
     if(dataDesp.value){
         dataDesp.value.forEach(i=>{
             const f = i.fields || {};
             if(f.ColaboradorEmail !== userEmail) return;
-            totalDespesas += parseFloat(f.Valor) || 0;
+            const val = parseFloat(f.Valor)||0;
+            totalDespesas += val;
+            movimentos.push({tipo:"Despesa", fornecedor:f.Fornecedor, valor:val, data:new Date(i.createdDateTime)});
         });
     }
 
-    // BUDGET
-    const resBudget = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/BudgetColaboradores/items?$expand=fields`,{
-        headers:{Authorization:`Bearer ${t}`}
-    });
-
-    const dataBudget = await resBudget.json();
+    const bud = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/BudgetColaboradores/items?$expand=fields`,{headers:{Authorization:`Bearer ${t}`}});
+    const dataBudget = await bud.json();
 
     if(dataBudget.value){
         dataBudget.value.forEach(i=>{
             const f = i.fields || {};
-
             if(f.ColaboradorEmail !== userEmail) return;
             if(parseInt(f.Ano) !== anoAtual) return;
-
-            budget += parseFloat(f.ValorBudget) || 0;
+            budget += parseFloat(f.ValorBudget)||0;
         });
     }
 
     const totalUsado = totalDespesas + totalAccrual;
-    const percent = budget > 0 ? (totalUsado / budget) * 100 : 0;
+    const percent = budget>0 ? (totalUsado/budget)*100 : 0;
 
-    document.getElementById("accrualTotal").innerText = totalAccrual + "€";
-    document.getElementById("despesasTotal").innerText = totalDespesas + "€";
-    document.getElementById("budget").innerText = budget + "€";
-    document.getElementById("diferenca").innerText = (budget - totalUsado) + "€";
+    document.getElementById("budget").innerText = budget+"€";
+    document.getElementById("despesasTotal").innerText = totalDespesas+"€";
+    document.getElementById("accrualTotal").innerText = totalAccrual+"€";
+    document.getElementById("diferenca").innerText = (budget-totalUsado)+"€";
 
-    document.getElementById("progressBar").style.width = percent + "%";
-    document.getElementById("percentagem").innerText = percent.toFixed(1) + "% do budget utilizado";
+    document.getElementById("progressBar").style.width = percent+"%";
+    document.getElementById("percentagem").innerText = percent.toFixed(1)+"% usado";
+
+    movimentos.sort((a,b)=> b.data - a.data);
+
+    let html="";
+    movimentos.forEach(m=>{
+        html+=`
+        <div class="mov">
+            <div class="mov-left">
+                <div>${m.fornecedor||"-"}</div>
+                <div class="mov-tipo">${m.tipo}</div>
+            </div>
+            <div class="mov-valor ${m.tipo==="Despesa"?"despesa":"accrual"}">
+                ${m.tipo==="Despesa"?"-":"+"}${m.valor}€
+            </div>
+        </div>`;
+    });
+
+    document.getElementById("historico").innerHTML = html;
 }
 
 init();
