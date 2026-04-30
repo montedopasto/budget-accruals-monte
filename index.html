@@ -35,7 +35,6 @@ body{
 .menu div{
     margin:15px 0;
     opacity:.9;
-    cursor:pointer;
 }
 
 /* HEADER */
@@ -46,4 +45,271 @@ body{
     display:flex;
     align-items:center;
     justify-content:space-between;
-    padding:0 30
+    padding:0 30px;
+    border-bottom:1px solid #e2e8f0;
+}
+
+/* CONTENT */
+.content{
+    margin-left:240px;
+    padding:30px;
+}
+
+/* GRID */
+.grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+}
+
+.card{
+    background:white;
+    border-radius:14px;
+    padding:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+.card h4{
+    margin:0;
+    color:#64748b;
+}
+
+.card h2{
+    margin-top:10px;
+}
+
+/* FORM */
+.create{
+    margin-top:30px;
+    display:grid;
+    grid-template-columns:2fr 1fr 2fr 1fr 1fr auto;
+    gap:10px;
+}
+
+input{
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #e2e8f0;
+}
+
+/* LIST */
+.list{
+    margin-top:30px;
+}
+
+.row{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:10px;
+    display:flex;
+    justify-content:space-between;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">💰 Budget OS</div>
+    <div class="menu">
+        <div>Visão Geral</div>
+        <div>Accruals</div>
+    </div>
+</div>
+
+<div class="header">
+    <div><b>Dashboard</b></div>
+    <div id="user"></div>
+</div>
+
+<div class="content">
+
+    <div class="grid">
+        <div class="card">
+            <h4>Total</h4>
+            <h2 id="total">0€</h2>
+        </div>
+
+        <div class="card">
+            <h4>Este mês</h4>
+            <h2 id="mesAtual">0€</h2>
+        </div>
+
+        <div class="card">
+            <h4>Pendentes</h4>
+            <h2 id="pendentes">0€</h2>
+        </div>
+
+        <div class="card">
+            <h4>Registos</h4>
+            <h2 id="registos">0</h2>
+        </div>
+    </div>
+
+    <div class="create">
+        <input id="fornecedor" placeholder="Fornecedor">
+        <input id="valor" type="number" placeholder="€">
+        <input id="descricao" placeholder="Descrição">
+        <input id="mes" type="number" placeholder="Mês">
+        <input id="ano" type="number" placeholder="Ano">
+        <button onclick="criar()">+</button>
+    </div>
+
+    <div class="list" id="lista"></div>
+
+</div>
+
+<script>
+
+const clientId = "84a548f9-d082-4e9b-b639-1b34432df8c8";
+const tenantId = "ee417351-ea90-41e0-9147-5ea6ab38ea49";
+const siteId = "montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a,d1a6f091-93b5-4454-b6e2-809ad4e4d73a";
+
+let userEmail = "";
+
+const msalInstance = new msal.PublicClientApplication({
+    auth:{
+        clientId,
+        authority:`https://login.microsoftonline.com/${tenantId}`,
+        redirectUri:window.location.origin
+    }
+});
+
+async function init(){
+
+    try{
+
+        const acc = msalInstance.getAllAccounts();
+
+        if(acc.length===0){
+            const res = await msalInstance.loginPopup({scopes:["User.Read","Sites.ReadWrite.All"]});
+            userEmail = res.account.username;
+        }else{
+            userEmail = acc[0].username;
+        }
+
+        document.getElementById("user").innerText = userEmail;
+
+        await load();
+
+    }catch(e){
+        document.body.innerHTML = "<h2>Erro login</h2><pre>"+e+"</pre>";
+    }
+}
+
+async function token(){
+    const acc = msalInstance.getAllAccounts()[0];
+
+    const res = await msalInstance.acquireTokenSilent({
+        scopes:["User.Read","Sites.ReadWrite.All"],
+        account:acc
+    });
+
+    return res.accessToken;
+}
+
+async function criar(){
+
+    try{
+
+        const fornecedor = document.getElementById("fornecedor").value;
+        const valor = parseFloat(document.getElementById("valor").value);
+        const descricao = document.getElementById("descricao").value;
+        const mes = parseInt(document.getElementById("mes").value);
+        const ano = parseInt(document.getElementById("ano").value);
+
+        const t = await token();
+
+        await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items`,{
+            method:"POST",
+            headers:{
+                Authorization:`Bearer ${t}`,
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                fields:{
+                    Title:fornecedor,
+                    Fornecedor:fornecedor,
+                    Descricao:descricao,
+                    ValorEstimado:valor,
+                    MesReferencia:mes,
+                    AnoReferencia:ano,
+                    Estado:"Pendente",
+                    ColaboradorEmail:userEmail
+                }
+            })
+        });
+
+        await load();
+
+    }catch(e){
+        alert("Erro ao criar");
+    }
+}
+
+async function load(){
+
+    try{
+
+        const t = await token();
+
+        const res = await fetch(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/items?$expand=fields`,{
+            headers:{Authorization:`Bearer ${t}`}
+        });
+
+        const data = await res.json();
+
+        if(!data.value){
+            document.body.innerHTML = "<h2>Erro Graph</h2><pre>"+JSON.stringify(data,null,2)+"</pre>";
+            return;
+        }
+
+        let total=0, mesTotal=0, pend=0, count=0;
+        let html="";
+
+        const now = new Date();
+
+        data.value.forEach(i=>{
+
+            const f = i.fields || {};
+
+            if(f.ColaboradorEmail!==userEmail) return;
+
+            total += f.ValorEstimado || 0;
+            count++;
+
+            if(f.Estado==="Pendente") pend += f.ValorEstimado || 0;
+
+            if(f.MesReferencia === (now.getMonth()+1)){
+                mesTotal += f.ValorEstimado || 0;
+            }
+
+            html += `
+            <div class="row">
+                <div>
+                    <b>${f.Fornecedor || ""}</b><br>
+                    ${f.Descricao || ""}
+                </div>
+                <div>${f.ValorEstimado || 0}€</div>
+            </div>`;
+        });
+
+        document.getElementById("lista").innerHTML = html;
+        document.getElementById("total").innerText = total + "€";
+        document.getElementById("mesAtual").innerText = mesTotal + "€";
+        document.getElementById("pendentes").innerText = pend + "€";
+        document.getElementById("registos").innerText = count;
+
+    }catch(e){
+        document.body.innerHTML = "<h2>Erro JS</h2><pre>"+e+"</pre>";
+    }
+}
+
+init();
+
+</script>
+
+</body>
+</html>
