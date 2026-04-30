@@ -816,7 +816,10 @@ async function loadCategorias(){
         });
     }
 }
-init();
+(async () => {
+    await msalInstance.handleRedirectPromise();
+    await init();
+})();
 </script>
 
 </body>
