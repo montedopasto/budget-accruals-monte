@@ -848,25 +848,35 @@ async function loadCategorias(){
 
     const t = await token();
 
-    // ===== DESPESAS =====
-    const resDesp = await fetch(
-        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/DespesasColaboradores/columns`,
-        { headers:{ Authorization:`Bearer ${t}` } }
+    const res = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/MovimentosFinanceiros/columns`,
+        {
+            headers:{
+                Authorization:`Bearer ${t}`
+            }
+        }
     );
 
-    const dataDesp = await resDesp.json();
+    const data = await res.json();
 
-    const colDesp = dataDesp.value.find(c => c.name === "Categoria");
+    const col = data.value.find(c => c.name === "Categoria");
 
-    if(colDesp && colDesp.choice){
-        const select = document.getElementById("despCategoria");
+    if(col && col.choice){
+
+        const select = document.getElementById("categoriaDocumento");
 
         select.innerHTML = `<option value="">Selecionar</option>`;
 
-        colDesp.choice.choices.forEach(opt=>{
-            select.innerHTML += `<option value="${opt}">${opt}</option>`;
+        col.choice.choices.forEach(opt=>{
+
+            select.innerHTML += `
+                <option value="${opt}">
+                    ${opt}
+                </option>
+            `;
         });
     }
+}
 
 
     // ===== ACCRUALS =====
