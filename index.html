@@ -989,7 +989,9 @@ async function uploadDocumento(){
     fields:{
         Title:file.name,
         TipoDocumento:tipo,
-        Categoria:categoria,
+        Categoria:{
+            Value: categoria
+        },
         PDFUrl:pdfUrl,
         OCRTexto:textoPDF,
         OCRProcessado:true,
