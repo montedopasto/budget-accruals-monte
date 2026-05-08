@@ -858,25 +858,36 @@ async function loadCategorias(){
         }
     );
 
+    if(!res.ok){
+        console.error("Erro categorias");
+        return;
+    }
+
     const data = await res.json();
 
-    const col = data.value.find(c => c.name === "Categoria");
+    const col = data.value.find(
+        c => c.name === "Categoria"
+    );
 
-    if(col && col.choice){
-
-        const select = document.getElementById("categoriaDocumento");
-
-        select.innerHTML = `<option value="">Selecionar</option>`;
-
-        col.choice.choices.forEach(opt=>{
-
-            select.innerHTML += `
-                <option value="${opt}">
-                    ${opt}
-                </option>
-            `;
-        });
+    if(!col || !col.choice){
+        return;
     }
+
+    const select =
+        document.getElementById("categoriaDocumento");
+
+    select.innerHTML =
+        `<option value="">Selecionar</option>`;
+
+    col.choice.choices.forEach(opt=>{
+
+        select.innerHTML += `
+            <option value="${opt}">
+                ${opt}
+            </option>
+        `;
+    });
+}
 }
 
 async function uploadDocumento(){
