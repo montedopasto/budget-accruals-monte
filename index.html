@@ -1141,12 +1141,19 @@ function preencherCamposOCR(texto){
     if(matchData){
 
         const partes =
-            matchData[1].replaceAll("-","/").split("/");
+    matchData[1]
+    .replaceAll("-","/")
+    .split("/");
 
-        const dataISO =
-            `${partes[2]}-${partes[1]}-${partes[0]}`;
+const dia = partes[0].padStart(2,"0");
+const mes = partes[1].padStart(2,"0");
+const ano = partes[2];
 
-        document.getElementById("dataDocumento").value = dataISO;
+const dataISO =
+    `${ano}-${mes}-${dia}`;
+
+document.getElementById("dataDocumento").value =
+    dataISO;
     }
 
     // =========================
