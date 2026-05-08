@@ -988,7 +988,9 @@ async function uploadDocumento(){
     const item = {
     fields:{
         Title:file.name,
-        TipoDocumento:tipo,
+        TipoDocumento:{
+    Value: tipo
+},
         Categoria:{
             Value: categoria
         },
