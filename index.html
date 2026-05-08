@@ -1019,7 +1019,9 @@ const dataDocumento =
     document.getElementById("dataDocumento").value;
 console.log("DATA ENVIADA:", dataDocumento);
 const dataObj =
-    dataDocumento ? new Date(dataDocumento) : null;
+    dataDocumento
+        ? new Date(dataDocumento + "T00:00:00")
+        : null;
 
 const item = {
     fields:{
