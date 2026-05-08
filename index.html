@@ -1004,22 +1004,53 @@ async function uploadDocumento(){
     // GUARDAR LISTA
     // =========================
 
-    const item = {
+    const fornecedor =
+    document.getElementById("fornecedorDocumento").value;
+
+const valor =
+    parseFloat(
+        document.getElementById("valorDocumento").value
+    ) || 0;
+
+const numeroDocumento =
+    document.getElementById("numeroDocumento").value;
+
+const dataDocumento =
+    document.getElementById("dataDocumento").value;
+
+const dataObj =
+    dataDocumento ? new Date(dataDocumento) : null;
+
+const item = {
     fields:{
 
-        Title: file.name,
+        Title:file.name,
 
-        TipoDocumento: tipo,
+        TipoDocumento:tipo,
 
-        Categoria: categoria,
+        Categoria:categoria,
 
-        OCRTexto: textoPDF,
+        OCRTexto:textoPDF,
 
-        OCRProcessado: true,
+        OCRProcessado:true,
 
-        HashDocumento: hashDocumento,
+        HashDocumento:hashDocumento,
 
-        CriadoPorEmail: userEmail
+        CriadoPorEmail:userEmail,
+
+        Fornecedor:fornecedor,
+
+        ValorDocumento:valor,
+
+        NumeroDocumento:numeroDocumento,
+
+        DataDocumento:dataDocumento,
+
+        AnoDocumento:
+            dataObj ? dataObj.getFullYear() : null,
+
+        MesDocumento:
+            dataObj ? dataObj.getMonth()+1 : null
     }
 };
 
