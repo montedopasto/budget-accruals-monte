@@ -1211,7 +1211,7 @@ document.getElementById("dataDocumento").value =
     if(linhas.length){
 
         document.getElementById("fornecedorDocumento").value =
-            linhas[0];
+    linhas[0].substring(0,80);
     }
 }
 (async () => {
