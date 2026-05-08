@@ -879,27 +879,6 @@ async function loadCategorias(){
     }
 }
 
-
-    // ===== ACCRUALS =====
-    const resAcc = await fetch(
-        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/AccrualsColaboradores/columns`,
-        { headers:{ Authorization:`Bearer ${t}` } }
-    );
-
-    const dataAcc = await resAcc.json();
-
-    const colAcc = dataAcc.value.find(c => c.name === "Categoria");
-
-    if(colAcc && colAcc.choice){
-        const select = document.getElementById("accCategoria");
-
-        select.innerHTML = `<option value="">Selecionar</option>`;
-
-        colAcc.choice.choices.forEach(opt=>{
-            select.innerHTML += `<option value="${opt}">${opt}</option>`;
-        });
-    }
-}
 async function uploadDocumento(){
 
     const file = document.getElementById("pdfFile").files[0];
