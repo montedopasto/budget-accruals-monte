@@ -1025,36 +1025,7 @@ const dataObj =
 
 const item = {
     fields:{
-
-        Title:file.name,
-
-        TipoDocumento:tipo,
-
-        Categoria: {
-    Value: categoria
-},
-
-        OCRTexto:textoPDF,
-
-        OCRProcessado:true,
-
-        HashDocumento:hashDocumento,
-
-        CriadoPorEmail:userEmail,
-
-        Fornecedor:fornecedor,
-
-        ValorDocumento:valor,
-
-        NumeroDocumento:numeroDocumento,
-
-        DataDocumento: dataDocumento || null,
-
-        AnoDocumento:
-            dataObj ? dataObj.getFullYear() : null,
-
-        MesDocumento:
-            dataObj ? dataObj.getMonth()+1 : null
+        Title:file.name
     }
 };
 
