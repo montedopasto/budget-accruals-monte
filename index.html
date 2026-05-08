@@ -1075,10 +1075,11 @@ const numeroDocumento =
 const dataDocumento =
     document.getElementById("dataDocumento").value;
 console.log("DATA ENVIADA:", dataDocumento);
-const dataObj =
-    dataDocumento
-        ? new Date(dataDocumento + "T00:00:00")
-        : null;
+const mesDocumento =
+    parseInt(document.getElementById("mesDocumento").value) || null;
+
+const anoDocumento =
+    parseInt(document.getElementById("anoDocumento").value) || null;
 
 const item = {
 
