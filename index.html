@@ -899,6 +899,142 @@ async function loadCategorias(){
         });
     }
 }
+async function uploadDocumento(){
+
+    const file = document.getElementById("pdfFile").files[0];
+
+    if(!file){
+        alert("Seleciona um ficheiro.");
+        return;
+    }
+
+    const tipo = document.getElementById("tipoDocumento").value;
+    const categoria = document.getElementById("categoriaDocumento").value;
+
+    const t = await token();
+
+    // =========================
+    // DRIVE SHAREPOINT
+    // =========================
+
+    const drivesRes = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/drives`,
+        {
+            headers:{
+                Authorization:`Bearer ${t}`
+            }
+        }
+    );
+
+    const drivesData = await drivesRes.json();
+
+    const drive = drivesData.value.find(
+        d => d.name === "DocumentosFinanceiros"
+    );
+
+    if(!drive){
+        alert("Biblioteca DocumentosFinanceiros não encontrada.");
+        return;
+    }
+
+    // =========================
+    // UPLOAD PDF
+    // =========================
+
+    const uploadRes = await fetch(
+        `https://graph.microsoft.com/v1.0/drives/${drive.id}/root:/${file.name}:/content`,
+        {
+            method:"PUT",
+            headers:{
+                Authorization:`Bearer ${t}`
+            },
+            body:file
+        }
+    );
+
+    if(!uploadRes.ok){
+
+        const txt = await uploadRes.text();
+
+        console.error(txt);
+
+        alert("Erro upload ficheiro.");
+
+        return;
+    }
+
+    const uploadData = await uploadRes.json();
+
+    const pdfUrl = uploadData.webUrl;
+
+    // =========================
+    // HASH DUPLICADOS
+    // =========================
+
+    const hashDocumento =
+        `${file.name}_${file.size}`;
+
+    // =========================
+    // VERIFICAR DUPLICADOS
+    // =========================
+
+    const docs = await graphGet("MovimentosFinanceiros");
+
+    const existe = docs.value?.find(i =>
+        i.fields?.HashDocumento === hashDocumento
+    );
+
+    if(existe){
+
+        alert("Documento duplicado.");
+
+        return;
+    }
+
+    // =========================
+    // GUARDAR LISTA
+    // =========================
+
+    const item = {
+        fields:{
+            Title:file.name,
+            TipoDocumento:tipo,
+            Categoria:categoria,
+            PDFUrl:pdfUrl,
+            HashDocumento:hashDocumento,
+            CriadoPorEmail:userEmail
+        }
+    };
+
+    const saveRes = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/MovimentosFinanceiros/items`,
+        {
+            method:"POST",
+            headers:{
+                Authorization:`Bearer ${t}`,
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(item)
+        }
+    );
+
+    if(!saveRes.ok){
+
+        const txt = await saveRes.text();
+
+        console.error(txt);
+
+        alert("Erro guardar documento.");
+
+        return;
+    }
+
+    alert("Documento guardado.");
+
+    document.getElementById("pdfFile").value="";
+
+    await load();
+}
 (async () => {
     await msalInstance.handleRedirectPromise();
     await init();
