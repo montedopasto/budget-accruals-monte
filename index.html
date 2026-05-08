@@ -365,9 +365,29 @@ textarea{
     Data Documento
     <input type="date" id="dataDocumento">
 </label>
-            <button class="action full" onclick="uploadDocumento()">
-                Guardar Documento
-            </button>
+            <div class="full" style="display:flex;gap:12px">
+
+    <button
+        type="button"
+        class="action"
+        style="flex:1;background:#0f172a"
+        onclick="obterDadosPDF()">
+
+        Obter Dados PDF
+
+    </button>
+
+    <button
+        type="button"
+        class="action"
+        style="flex:1"
+        onclick="uploadDocumento()">
+
+        Guardar Documento
+
+    </button>
+
+</div>
 
         </div>
 
