@@ -988,13 +988,20 @@ async function uploadDocumento(){
     const item = {
     fields:{
         Title:file.name,
+
         TipoDocumento:{
-    Value: tipo
-},
+            Value: tipo
+        },
+
         Categoria:{
             Value: categoria
         },
-        PDFUrl:pdfUrl,
+
+        PDFUrl:{
+            Url: pdfUrl,
+            Description: file.name
+        },
+
         OCRTexto:textoPDF,
         OCRProcessado:true,
         HashDocumento:hashDocumento,
