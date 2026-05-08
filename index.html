@@ -674,8 +674,8 @@ async function addAccrual(){
 async function load(){
     const anoAtual=new Date().getFullYear();
 
-    const accData=await graphGet("AccrualsColaboradores");
-    const despData=await graphGet("DespesasColaboradores");
+    const movimentosData =
+    await graphGet("MovimentosFinanceiros");
     const budgetData=await graphGet("BudgetColaboradores");
 
     let despesas=0;
