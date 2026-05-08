@@ -1028,7 +1028,16 @@ const item = {
         Title:file.name,
         TipoDocumento:tipo,
         Categoria:categoria,
-        OCRTexto:textoPDF
+        OCRTexto:textoPDF,
+        OCRProcessado:true,
+        HashDocumento:hashDocumento,
+        CriadoPorEmail:userEmail,
+        Fornecedor:fornecedor,
+        ValorDocumento:valor,
+        NumeroDocumento:numeroDocumento,
+        DataDocumento:dataDocumento || null,
+        AnoDocumento:dataObj ? dataObj.getFullYear() : 0,
+        MesDocumento:dataObj ? dataObj.getMonth()+1 : 0
     }
 };
 
