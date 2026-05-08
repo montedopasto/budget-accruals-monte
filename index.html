@@ -321,38 +321,40 @@ textarea{
     </div>
 </section>
 
-<section id="despesas" class="section">
-    <div class="card">
-        <h2>Registar despesa</h2>
-        <div class="form-grid">
-            <label>Fornecedor<input id="despFornecedor"></label>
-            <label>Valor<input id="despValor" type="number"></label>
-            <label>Categoria
-<select id="despCategoria"></select>
-</label>
-            <label>Data<input id="despData" type="date"></label>
-            <label class="full">Descrição<textarea id="despDescricao"></textarea></label>
-            <button class="action full" onclick="addDespesa()">Guardar despesa</button>
-        </div>
-    </div>
-</section>
+<section id="novo" class="section">
 
-<section id="accruals" class="section">
     <div class="card">
-        <h2>Registar accrual</h2>
+
+        <h2>Novo Documento</h2>
+
         <div class="form-grid">
-            <label>Fornecedor<input id="accFornecedor"></label>
-            <label>Valor estimado<input id="accValor" type="number"></label>
-            <label>Categoria
-<select id="accCategoria"></select>
-</label>
-            <label>Data prevista<input id="accData" type="date"></label>
-            <label>Mês referência<input id="accMes" type="number" min="1" max="12"></label>
-            <label>Ano referência<input id="accAno" type="number"></label>
-            <label class="full">Descrição<textarea id="accDescricao"></textarea></label>
-            <button class="action full" onclick="addAccrual()">Guardar accrual</button>
+
+            <label class="full">
+                PDF / Imagem
+                <input type="file" id="pdfFile" accept=".pdf,image/*">
+            </label>
+
+            <label>
+                Tipo Documento
+                <select id="tipoDocumento">
+                    <option value="Despesa">Despesa</option>
+                    <option value="Accrual">Accrual</option>
+                </select>
+            </label>
+
+            <label>
+                Categoria
+                <select id="categoriaDocumento"></select>
+            </label>
+
+            <button class="action full" onclick="uploadDocumento()">
+                Guardar Documento
+            </button>
+
         </div>
+
     </div>
+
 </section>
 
 <section id="historico" class="section">
