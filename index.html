@@ -975,6 +975,7 @@ async function uploadDocumento(){
 
     const pdfUrl = uploadData.webUrl;
     const textoPDF = await extrairTextoPDF(file);
+    preencherCamposOCR(textoPDF);
     // =========================
     // HASH DUPLICADOS
     // =========================
