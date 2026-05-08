@@ -1077,6 +1077,77 @@ async function extrairTextoPDF(file){
 
     return texto;
 }
+function preencherCamposOCR(texto){
+
+    // =========================
+    // VALOR
+    // =========================
+
+    const regexValor =
+        /(?:total|total a pagar|valor a pagar|montante)[^\d]{0,10}(\d+[.,]\d{2})/i;
+
+    const matchValor = texto.match(regexValor);
+
+    if(matchValor){
+
+        const valor =
+            matchValor[1]
+            .replace(/\./g,"")
+            .replace(",", ".");
+
+        document.getElementById("valorDocumento").value = valor;
+    }
+
+    // =========================
+    // DATA
+    // =========================
+
+    const regexData =
+        /(\d{2}[\/\-]\d{2}[\/\-]\d{4})/;
+
+    const matchData = texto.match(regexData);
+
+    if(matchData){
+
+        const partes =
+            matchData[1].replaceAll("-","/").split("/");
+
+        const dataISO =
+            `${partes[2]}-${partes[1]}-${partes[0]}`;
+
+        document.getElementById("dataDocumento").value = dataISO;
+    }
+
+    // =========================
+    // Nº DOCUMENTO
+    // =========================
+
+    const regexNumero =
+        /(?:fatura|factura|ft|fr)\s*[:\-]?\s*([A-Z0-9\/\-]+)/i;
+
+    const matchNumero = texto.match(regexNumero);
+
+    if(matchNumero){
+
+        document.getElementById("numeroDocumento").value =
+            matchNumero[1];
+    }
+
+    // =========================
+    // FORNECEDOR
+    // =========================
+
+    const linhas =
+        texto.split("\n")
+             .map(l => l.trim())
+             .filter(l => l.length > 3);
+
+    if(linhas.length){
+
+        document.getElementById("fornecedorDocumento").value =
+            linhas[0];
+    }
+}
 (async () => {
     await msalInstance.handleRedirectPromise();
     await init();
