@@ -672,68 +672,79 @@ async function addAccrual(){
 
 
 async function load(){
-    const anoAtual=new Date().getFullYear();
+    const anoAtual = new Date().getFullYear();
 
     const movimentosData =
-    await graphGet("MovimentosFinanceiros");
-    const budgetData=await graphGet("BudgetColaboradores");
+        await graphGet("MovimentosFinanceiros");
 
-    let despesas=0;
-    let accruals=0;
-    let budget=0;
-    let mensal=new Array(12).fill(0);
-    movimentos=[];
+    const budgetData =
+        await graphGet("BudgetColaboradores");
 
-    accData.value?.forEach(i=>{
-        const f=i.fields||{};
-        if(f.ColaboradorEmail!==userEmail) return;
+    let despesas = 0;
+    let accruals = 0;
+    let budget = 0;
+    let mensal = new Array(12).fill(0);
 
-        const valor=parseFloat(f.ValorEstimado)||0;
-        const data=i.createdDateTime ? new Date(i.createdDateTime) : new Date();
-        const mes=parseInt(f.MesReferencia)||data.getMonth()+1;
-        const ano=parseInt(f.AnoReferencia)||data.getFullYear();
+    movimentos = [];
 
-        accruals+=valor;
-        if(ano===anoAtual) mensal[mes-1]+=valor;
+    movimentosData.value?.forEach(i=>{
+
+        const f = i.fields || {};
+
+        if(f.CriadoPorEmail !== userEmail) return;
+
+        const tipo =
+            f.TipoDocumento || "Despesa";
+
+        const valor =
+            parseFloat(f.ValorDocumento) || 0;
+
+        const data =
+            f.DataDocumento
+                ? new Date(f.DataDocumento)
+                : new Date(i.createdDateTime);
+
+        const mes =
+            parseInt(f.MesDocumento) || data.getMonth()+1;
+
+        const ano =
+            parseInt(f.AnoDocumento) || data.getFullYear();
+
+        if(tipo === "Despesa"){
+            despesas += valor;
+        }
+
+        if(tipo === "Accrual"){
+            accruals += valor;
+        }
+
+        if(ano === anoAtual && mes >= 1 && mes <= 12){
+            mensal[mes-1] += valor;
+        }
 
         movimentos.push({
-            tipo:"Accrual",
-            fornecedor:f.Fornecedor||"-",
-            categoria:(f.Categoria?.Value)||"Sem categoria",
+            tipo,
+            fornecedor: f.Fornecedor || "-",
+            categoria: f.Categoria || "Sem categoria",
             valor,
             data
         });
-    });
 
-    despData.value?.forEach(i=>{
-        const f=i.fields||{};
-        if(f.ColaboradorEmail!==userEmail) return;
-
-        const valor=parseFloat(f.Valor)||0;
-        const data=f.Data ? new Date(f.Data) : new Date(i.createdDateTime);
-
-        despesas+=valor;
-        if(data.getFullYear()===anoAtual) mensal[data.getMonth()]+=valor;
-
-        movimentos.push({
-            tipo:"Despesa",
-            fornecedor:f.Fornecedor||"-",
-            categoria:(f.Categoria?.Value)||"Sem categoria",
-            valor,
-            data
-        });
     });
 
     budgetData.value?.forEach(i=>{
-        const f=i.fields||{};
-        if(f.ColaboradorEmail!==userEmail) return;
-        if(parseInt(f.Ano)!==anoAtual) return;
-        if(f.Ativo===false) return;
 
-        budget+=parseFloat(f.ValorBudget)||0;
+        const f = i.fields || {};
+
+        if(f.ColaboradorEmail !== userEmail) return;
+        if(parseInt(f.Ano) !== anoAtual) return;
+        if(f.Ativo === false) return;
+
+        budget += parseFloat(f.ValorBudget) || 0;
+
     });
 
-    renderDashboard(budget,despesas,accruals,mensal);
+    renderDashboard(budget, despesas, accruals, mensal);
     renderRecent();
     setupFilters();
     renderHistory();
