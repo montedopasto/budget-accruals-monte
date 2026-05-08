@@ -389,7 +389,8 @@ let userEmail="";
 let movimentos=[];
 let lineChart=null;
 let donutChart=null;
-
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 const msalInstance=new msal.PublicClientApplication({
     auth:{clientId,authority:`https://login.microsoftonline.com/${tenantId}`,redirectUri: window.location.origin}
 });
