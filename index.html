@@ -926,7 +926,34 @@ async function loadCategorias(){
         `;
     });
 }
+async function obterDadosPDF(){
 
+    const file =
+        document.getElementById("pdfFile").files[0];
+
+    if(!file){
+
+        alert("Seleciona um ficheiro.");
+
+        return;
+    }
+
+    try{
+
+        const textoPDF =
+            await extrairTextoPDF(file);
+
+        await preencherCamposOCR(textoPDF);
+
+        alert("Dados obtidos do PDF.");
+
+    }catch(e){
+
+        console.error(e);
+
+        alert("Erro ao processar PDF.");
+    }
+}
 async function uploadDocumento(){
 
     const file = document.getElementById("pdfFile").files[0];
