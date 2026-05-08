@@ -1044,7 +1044,13 @@ const item = {
 
         NumeroDocumento:numeroDocumento,
 
-        DataDocumento:dataDocumento,
+        DataDocumento:
+
+    dataDocumento
+
+        ? `${dataDocumento}T00:00:00Z`
+
+        : null,
 
         AnoDocumento:
             dataObj ? dataObj.getFullYear() : null,
