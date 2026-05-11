@@ -897,8 +897,25 @@ function renderHistory(){
                     <td>${m.tipo}</td>
                     <td>${m.fornecedor}</td>
                     <td>${m.categoria}</td>
-                    <td class="${cls}"><strong>${sign}${euro(m.valor)}</strong></td>
-                </tr>
+                    <td class="${cls}">
+    <strong>${sign}${euro(m.valor)}</strong>
+</td>
+
+<td>
+    <button
+        onclick="abrirDetalhe(${m.id})"
+        style="
+        border:none;
+        background:#6366f1;
+        color:white;
+        padding:8px 12px;
+        border-radius:10px;
+        cursor:pointer;
+        font-weight:700;
+        ">
+        👁 Ver
+    </button>
+</td>
             `;
         }).join("");
 
