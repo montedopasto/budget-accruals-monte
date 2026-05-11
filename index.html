@@ -730,12 +730,28 @@ async function load(){
         }
 
         movimentos.push({
-            tipo,
-            fornecedor: f.Fornecedor || "-",
-            categoria: f.Categoria || "Sem categoria",
-            valor,
-            data
-        });
+
+    id: i.id,
+
+    tipo,
+
+    fornecedor: f.Fornecedor || "-",
+
+    categoria: f.Categoria || "Sem categoria",
+
+    valor,
+
+    data,
+
+    numero: f.NumeroDocumento || "-",
+
+    pdf: f.PDFUrl || "",
+
+    mes: f.MesDocumento || "-",
+
+    ano: f.AnoDocumento || "-"
+
+});
 
     });
 
