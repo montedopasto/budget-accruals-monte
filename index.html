@@ -1300,6 +1300,71 @@ document.getElementById("anoDocumento").value = ano;
     linhas[0].substring(0,80);
     }
 }
+function abrirDetalhe(id){
+
+    const mov =
+        movimentos.find(m => m.id == id);
+
+    if(!mov) return;
+
+    document.getElementById("detalheInfo").innerHTML = `
+
+        <div style="display:grid;gap:16px">
+
+            <div>
+                <small>Tipo</small>
+                <h3>${mov.tipo}</h3>
+            </div>
+
+            <div>
+                <small>Fornecedor</small>
+                <h3>${mov.fornecedor}</h3>
+            </div>
+
+            <div>
+                <small>Categoria</small>
+                <h3>${mov.categoria}</h3>
+            </div>
+
+            <div>
+                <small>Valor</small>
+                <h2>${euro(mov.valor)}</h2>
+            </div>
+
+            <div>
+                <small>Nº Documento</small>
+                <h3>${mov.numero}</h3>
+            </div>
+
+            <div>
+                <small>Mês / Ano</small>
+                <h3>${mov.mes} / ${mov.ano}</h3>
+            </div>
+
+            <div>
+                <small>Data</small>
+                <h3>
+                    ${mov.data.toLocaleDateString("pt-PT")}
+                </h3>
+            </div>
+
+        </div>
+    `;
+
+    document.getElementById("pdfViewer").src =
+        mov.pdf;
+
+    document.getElementById("modalDetalhe").style.display =
+        "flex";
+}
+
+function fecharModal(){
+
+    document.getElementById("modalDetalhe").style.display =
+        "none";
+
+    document.getElementById("pdfViewer").src = "";
+}    
 (async () => {
     await msalInstance.handleRedirectPromise();
     await init();
