@@ -1193,9 +1193,27 @@ const item = {
 
     alert("Documento guardado.");
 
-    document.getElementById("pdfFile").value="";
+// LIMPAR FORMULÁRIO
 
-    await load();
+document.getElementById("pdfFile").value = "";
+
+document.getElementById("tipoDocumento").value = "Despesa";
+
+document.getElementById("categoriaDocumento").value = "";
+
+document.getElementById("fornecedorDocumento").value = "";
+
+document.getElementById("valorDocumento").value = "";
+
+document.getElementById("numeroDocumento").value = "";
+
+document.getElementById("dataDocumento").value = "";
+
+document.getElementById("mesDocumento").value = "";
+
+document.getElementById("anoDocumento").value = "";
+
+await load();
 }
 async function extrairTextoPDF(file){
 
