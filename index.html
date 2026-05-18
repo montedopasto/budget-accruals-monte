@@ -958,47 +958,6 @@ function renderHistory(){
                     <td class="${cls}">
     <strong>${sign}${euro(m.valor)}</strong>
 </td>
-
-<td style="display:flex;gap:8px">
-
-    <button
-        onclick="abrirDetalhe(${m.id})"
-
-    ${
-        m.tipo === "Accrual"
-        ?
-        `
-        <button
-            onclick="converterAccrual('${m.id}')"
-            style="
-            border:none;
-            background:#22c55e;
-            color:white;
-            padding:8px 12px;
-            border-radius:10px;
-            cursor:pointer;
-            font-weight:700;
-            ">
-            ✔ Converter
-        </button>
-        `
-        :
-        ""
-    }
-
-</td>
-        style="
-        border:none;
-        background:#6366f1;
-        color:white;
-        padding:8px 12px;
-        border-radius:10px;
-        cursor:pointer;
-        font-weight:700;
-        ">
-        👁 Ver
-    </button>
-</td>
             `;
         }).join("");
 
