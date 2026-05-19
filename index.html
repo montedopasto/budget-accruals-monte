@@ -2028,6 +2028,135 @@ function fecharProjeto(){
     document.getElementById("modalProjeto").style.display =
         "none";
 }    
+async function marcarProjetoFaturado(id){
+
+    const confirmar =
+        confirm(
+            "Confirmar que este projeto já foi faturado?"
+        );
+
+    if(!confirmar) return;
+
+    const projeto =
+        projetos.find(p => p.id == id);
+
+    if(!projeto) return;
+
+    const t = await token();
+
+    // =====================================
+    // FECHAR PROJETO
+    // =====================================
+
+    const updateRes = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/ProjetosFinanceiros/items/${id}/fields`,
+        {
+            method:"PATCH",
+            headers:{
+                Authorization:`Bearer ${t}`,
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+
+                EstadoProjeto: "Fechado",
+
+                Faturado: true
+
+            })
+        }
+    );
+
+    if(!updateRes.ok){
+
+        const txt = await updateRes.text();
+
+        console.error(txt);
+
+        alert("Erro atualizar projeto.");
+
+        return;
+    }
+
+    // =====================================
+    // CRIAR DESPESA
+    // =====================================
+
+    const hoje = new Date();
+
+    const itemMovimento = {
+
+        fields:{
+
+            Title:
+                projeto.fornecedor,
+
+            TipoDocumento:
+                "Despesa",
+
+            Categoria:
+                projeto.ccustos,
+
+            PDFUrl:"",
+            
+            OCRTexto:"",
+
+            OCRProcessado:false,
+
+            HashDocumento:
+                `PROJ-FECHADO-${id}-${Date.now()}`,
+
+            CriadoPorEmail:
+                userEmail,
+
+            Fornecedor:
+                projeto.fornecedor,
+
+            ValorDocumento:
+                projeto.valor,
+
+            NumeroDocumento:
+                `PROJ-FECHADO-${id}`,
+
+            DataDocumento:
+                hoje.toISOString(),
+
+            AnoDocumento:
+                hoje.getFullYear(),
+
+            MesDocumento:
+                hoje.getMonth()+1
+
+        }
+
+    };
+
+    const movRes = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/MovimentosFinanceiros/items`,
+        {
+            method:"POST",
+            headers:{
+                Authorization:`Bearer ${t}`,
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify(itemMovimento)
+        }
+    );
+
+    if(!movRes.ok){
+
+        const txt = await movRes.text();
+
+        console.error(txt);
+
+        alert("Erro criar despesa.");
+
+        return;
+    }
+
+    alert("Projeto faturado e fechado.");
+
+    await load();
+}    
 (async () => {
     await msalInstance.handleRedirectPromise();
     await init();
