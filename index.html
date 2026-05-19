@@ -789,7 +789,8 @@ const siteId="montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a
 
 let userEmail="";
 let movimentos=[];
-let projetos=[];   
+let projetos=[]; 
+let isAdmin = false;    
 let accrualsGlobais = [];    
 let isAdmin = false;    
 let lineChart=null;
@@ -1041,6 +1042,8 @@ async function load(){
     await graphGet("AdminsBudgetOS");
 const projetosData =
     await graphGet("ProjetosFinanceiros");
+const adminsData =
+    await graphGet("AdminsAccruals");    
     let despesas = 0;
     let accruals = 0;
     let budget = 0;
