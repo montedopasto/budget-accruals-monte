@@ -796,13 +796,25 @@ async function load(){
 
     const budgetData =
         await graphGet("BudgetColaboradores");
+    const adminsData =
+    await graphGet("AdminsBudgetOS");
 const projetosData =
     await graphGet("ProjetosFinanceiros");
     let despesas = 0;
     let accruals = 0;
     let budget = 0;
     let mensal = new Array(12).fill(0);
+isAdmin = adminsData.value?.some(a => {
 
+    const f = a.fields || {};
+
+    return (
+        f.Email?.toLowerCase() === userEmail.toLowerCase()
+        &&
+        f.Ativo === true
+    );
+
+}) || false;
     movimentos = [];
 
     movimentosData.value?.forEach(i=>{
