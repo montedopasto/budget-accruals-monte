@@ -1723,26 +1723,44 @@ function renderProjetos(){
                 <td>
 
                     ${
-                        p.estado === "A Decorrer"
-                        ?
-                        `
-                        <button
-                            onclick="marcarProjetoFeito('${p.id}')"
-                            style="
-                            border:none;
-                            background:#22c55e;
-                            color:white;
-                            padding:8px 12px;
-                            border-radius:10px;
-                            cursor:pointer;
-                            font-weight:700;
-                            ">
-                            ✔ Marcar Feito
-                        </button>
-                        `
-                        :
-                        ""
-                    }
+    p.estado === "A Decorrer"
+    ?
+    `
+    <button
+        onclick="marcarProjetoFeito('${p.id}')"
+        style="
+        border:none;
+        background:#22c55e;
+        color:white;
+        padding:8px 12px;
+        border-radius:10px;
+        cursor:pointer;
+        font-weight:700;
+        ">
+        ✔ Marcar Feito
+    </button>
+    `
+    :
+    p.estado === "Feito Não Faturado"
+    ?
+    `
+    <button
+        onclick="marcarProjetoFaturado('${p.id}')"
+        style="
+        border:none;
+        background:#6366f1;
+        color:white;
+        padding:8px 12px;
+        border-radius:10px;
+        cursor:pointer;
+        font-weight:700;
+        ">
+        💰 Marcar Faturado
+    </button>
+    `
+    :
+    ""
+}
 
                 </td>
 
