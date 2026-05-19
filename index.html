@@ -1115,6 +1115,60 @@ function renderHistory(){
 
     document.getElementById("historyTable").innerHTML=rows || `<tr><td colspan="5">Sem movimentos.</td></tr>`;
 }
+async function loadCCustosProjetos(){
+
+    const t = await token();
+
+    const res = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/ProjetosFinanceiros/columns`,
+        {
+            headers:{
+                Authorization:`Bearer ${t}`
+            }
+        }
+    );
+
+    if(!res.ok){
+
+        console.error("Erro CCustos");
+
+        return;
+    }
+
+    const data = await res.json();
+
+    const col = data.value.find(
+        c => c.name === "CCustos"
+    );
+
+    if(!col || !col.choice){
+
+        console.error("Campo CCustos não encontrado");
+
+        return;
+    }
+
+    const select =
+        document.getElementById("projCCustos");
+
+    select.innerHTML =
+        `
+        <option value="">
+            Selecionar
+        </option>
+        `;
+
+    col.choice.choices.forEach(opt=>{
+
+        select.innerHTML += `
+
+            <option value="${opt}">
+                ${opt}
+            </option>
+
+        `;
+    });
+}    
 async function loadCategorias(){
 
     const t = await token();
