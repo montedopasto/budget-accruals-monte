@@ -2095,80 +2095,60 @@ async function marcarProjetoFaturado(id){
     }
 
     // =====================================
-    // CRIAR DESPESA
-    // =====================================
+// OBTER ID DO ACCRUAL
+// =====================================
 
-    const hoje = new Date();
-
-    const itemMovimento = {
-
-        fields:{
-
-            Title:
-                projeto.fornecedor,
-
-            TipoDocumento:
-                "Despesa",
-
-            Categoria:
-                projeto.ccustos,
-
-            PDFUrl:"",
-            
-            OCRTexto:"",
-
-            OCRProcessado:false,
-
-            HashDocumento:
-                `PROJ-FECHADO-${id}-${Date.now()}`,
-
-            CriadoPorEmail:
-                userEmail,
-
-            Fornecedor:
-                projeto.fornecedor,
-
-            ValorDocumento:
-                projeto.valor,
-
-            NumeroDocumento:
-                `PROJ-FECHADO-${id}`,
-
-            DataDocumento:
-                hoje.toISOString(),
-
-            AnoDocumento:
-                hoje.getFullYear(),
-
-            MesDocumento:
-                hoje.getMonth()+1
-
+const projetoRes = await fetch(
+    `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/ProjetosFinanceiros/items/${id}?expand=fields`,
+    {
+        headers:{
+            Authorization:`Bearer ${t}`
         }
-
-    };
-
-    const movRes = await fetch(
-        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/MovimentosFinanceiros/items`,
-        {
-            method:"POST",
-            headers:{
-                Authorization:`Bearer ${t}`,
-                "Content-Type":"application/json"
-            },
-            body: JSON.stringify(itemMovimento)
-        }
-    );
-
-    if(!movRes.ok){
-
-        const txt = await movRes.text();
-
-        console.error(txt);
-
-        alert("Erro criar despesa.");
-
-        return;
     }
+);
+
+const projetoData = await projetoRes.json();
+
+const movimentoID =
+    projetoData.fields?.MovimentoID;
+
+if(!movimentoID){
+
+    alert("Movimento accrual não encontrado.");
+
+    return;
+}
+
+// =====================================
+// CONVERTER ACCRUAL → DESPESA
+// =====================================
+
+const updateMov = await fetch(
+    `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/MovimentosFinanceiros/items/${movimentoID}/fields`,
+    {
+        method:"PATCH",
+        headers:{
+            Authorization:`Bearer ${t}`,
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+
+            TipoDocumento: "Despesa"
+
+        })
+    }
+);
+
+if(!updateMov.ok){
+
+    const txt = await updateMov.text();
+
+    console.error(txt);
+
+    alert("Erro converter accrual.");
+
+    return;
+}
 
     alert("Projeto faturado e fechado.");
 
