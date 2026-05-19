@@ -1795,6 +1795,154 @@ async function guardarProjeto(){
     await load();
 
     alert("Projeto criado.");
+}  
+async function marcarProjetoFeito(id){
+
+    const projeto =
+        projetos.find(p => p.id == id);
+
+    if(!projeto) return;
+
+    const faturado =
+        confirm(
+            "Este projeto já foi faturado?\n\nOK = Sim\nCancelar = Não"
+        );
+
+    const t = await token();
+
+    // =====================================
+    // DEFINIR ESTADO
+    // =====================================
+
+    let novoEstado = "";
+
+    let tipoMovimento = "";
+
+    if(faturado){
+
+        novoEstado = "Fechado";
+
+        tipoMovimento = "Despesa";
+
+    }else{
+
+        novoEstado = "Feito Não Faturado";
+
+        tipoMovimento = "Accrual";
+    }
+
+    // =====================================
+    // ATUALIZAR PROJETO
+    // =====================================
+
+    const updateRes = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/ProjetosFinanceiros/items/${id}/fields`,
+        {
+            method:"PATCH",
+            headers:{
+                Authorization:`Bearer ${t}`,
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+
+                EstadoProjeto: novoEstado,
+
+                Faturado: faturado
+
+            })
+        }
+    );
+
+    if(!updateRes.ok){
+
+        const txt = await updateRes.text();
+
+        console.error(txt);
+
+        alert("Erro atualizar projeto.");
+
+        return;
+    }
+
+    // =====================================
+    // CRIAR MOVIMENTO
+    // =====================================
+
+    const hoje = new Date();
+
+    const itemMovimento = {
+
+        fields:{
+
+            Title:
+                projeto.fornecedor,
+
+            TipoDocumento:
+                tipoMovimento,
+
+            Categoria:
+                projeto.ccustos,
+
+            PDFUrl:"",
+            
+            OCRTexto:"",
+
+            OCRProcessado:false,
+
+            HashDocumento:
+                `PROJ_${id}_${Date.now()}`,
+
+            CriadoPorEmail:
+                userEmail,
+
+            Fornecedor:
+                projeto.fornecedor,
+
+            ValorDocumento:
+                projeto.valor,
+
+            NumeroDocumento:
+                `PROJ-${id}`,
+
+            DataDocumento:
+                hoje.toISOString(),
+
+            AnoDocumento:
+                hoje.getFullYear(),
+
+            MesDocumento:
+                hoje.getMonth()+1
+
+        }
+
+    };
+
+    const movRes = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/MovimentosFinanceiros/items`,
+        {
+            method:"POST",
+            headers:{
+                Authorization:`Bearer ${t}`,
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify(itemMovimento)
+        }
+    );
+
+    if(!movRes.ok){
+
+        const txt = await movRes.text();
+
+        console.error(txt);
+
+        alert("Erro criar movimento.");
+
+        return;
+    }
+
+    alert("Projeto atualizado com sucesso.");
+
+    await load();
 }    
 function abrirNovoProjeto(){
 
