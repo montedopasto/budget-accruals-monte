@@ -549,6 +549,7 @@ const siteId="montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a
 
 let userEmail="";
 let movimentos=[];
+let projetos=[];    
 let lineChart=null;
 let donutChart=null;
 pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -1567,6 +1568,17 @@ async function converterAccrual(id){
         alert("Erro ao converter.");
 
     }
+}  
+function abrirNovoProjeto(){
+
+    document.getElementById("modalProjeto").style.display =
+        "flex";
+}
+
+function fecharProjeto(){
+
+    document.getElementById("modalProjeto").style.display =
+        "none";
 }    
 (async () => {
     await msalInstance.handleRedirectPromise();
