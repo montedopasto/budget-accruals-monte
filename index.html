@@ -637,6 +637,7 @@ const siteId="montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a
 let userEmail="";
 let movimentos=[];
 let projetos=[];   
+let accrualsGlobais = [];    
 let isAdmin = false;    
 let lineChart=null;
 let donutChart=null;
@@ -902,6 +903,7 @@ isAdmin = adminsData.value?.some(a => {
     );
 
 }) || false;
+    accrualsGlobais = [];
     movimentos = [];
 
     movimentosData.value?.forEach(i=>{
@@ -932,8 +934,32 @@ isAdmin = adminsData.value?.some(a => {
         }
 
         if(tipo === "Accrual"){
-            accruals += valor;
-        }
+
+    accruals += valor;
+
+    accrualsGlobais.push({
+
+        id: i.id,
+
+        colaborador:
+            f.CriadoPorEmail || "-",
+
+        fornecedor:
+            f.Fornecedor || "-",
+
+        categoria:
+            f.Categoria || "-",
+
+        valor,
+
+        data,
+
+        mes,
+
+        ano
+
+    });
+}
 
         if(ano === anoAtual && mes >= 1 && mes <= 12){
             mensal[mes-1] += valor;
