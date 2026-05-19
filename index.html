@@ -323,7 +323,12 @@ gap:14px;
         onclick="showSection('projetos',this)">
         Projetos
     </button>
-
+<button
+    id="btnAccrualsGlobais"
+    style="display:none"
+    onclick="showSection('accrualsGlobais',this)">
+    Accruals Globais
+</button>
 </div>
     </div>
     <div class="user" id="user">A iniciar sessão...</div>
@@ -930,6 +935,12 @@ projetosData.value?.forEach(i=>{
     setupFilters();
     renderHistory();
     renderProjetos();
+    if(isAdmin){
+
+    document.getElementById(
+        "btnAccrualsGlobais"
+    ).style.display = "block";
+}
 }
 
 function renderDashboard(budget,despesas,accruals,mensal){
