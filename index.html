@@ -1658,5 +1658,93 @@ padding:20px;
     </div>
 
 </div>
+<div id="modalProjeto" style="
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.6);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:99999;
+padding:20px;
+">
+
+    <div style="
+    width:min(700px,95%);
+    background:white;
+    border-radius:22px;
+    padding:24px;
+    ">
+
+        <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:24px;
+        ">
+
+            <h2>Novo Projeto</h2>
+
+            <button
+                onclick="fecharProjeto()"
+                style="
+                border:none;
+                background:#ef4444;
+                color:white;
+                width:36px;
+                height:36px;
+                border-radius:12px;
+                cursor:pointer;
+                ">
+                ✕
+            </button>
+
+        </div>
+
+        <div class="form-grid">
+
+            <label>
+                Fornecedor
+                <input type="text" id="projFornecedor">
+            </label>
+
+            <label>
+                Centro de Custos
+                <input type="text" id="projCCustos">
+            </label>
+
+            <label class="full">
+                Detalhe
+                <textarea id="projDetalhe"></textarea>
+            </label>
+
+            <label>
+                Valor
+                <input type="number" id="projValor" step="0.01">
+            </label>
+
+            <label>
+                Período
+                <input type="text" id="projPeriodo">
+            </label>
+
+            <div class="full">
+
+                <button
+                    class="action"
+                    style="width:100%"
+                    onclick="guardarProjeto()">
+
+                    Guardar Projeto
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>    
 </body>
 </html>
