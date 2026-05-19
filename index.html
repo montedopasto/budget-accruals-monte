@@ -794,7 +794,8 @@ async function load(){
 
     const budgetData =
         await graphGet("BudgetColaboradores");
-
+const projetosData =
+    await graphGet("ProjetosFinanceiros");
     let despesas = 0;
     let accruals = 0;
     let budget = 0;
