@@ -486,7 +486,60 @@ gap:14px;
         </table>
     </div>
 </section>
+<section id="projetos" class="section">
 
+    <div class="card">
+
+        <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:24px;
+        ">
+
+            <h2>Projetos</h2>
+
+            <button
+                class="action"
+                onclick="abrirNovoProjeto()">
+
+                + Novo Projeto
+
+            </button>
+
+        </div>
+
+        <table class="table">
+
+            <thead>
+
+                <tr>
+                    <th>Fornecedor</th>
+                    <th>Detalhe</th>
+                    <th>CCustos</th>
+                    <th>Período</th>
+                    <th>Valor</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+
+            </thead>
+
+            <tbody id="tabelaProjetos">
+
+                <tr>
+                    <td colspan="7">
+                        Sem projetos.
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
 </div>
 
 <script>
