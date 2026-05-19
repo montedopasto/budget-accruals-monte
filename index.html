@@ -1111,6 +1111,7 @@ projetosData.value?.forEach(i=>{
         setupFilters();
         renderHistory();
         renderProjetos();
+    renderAccrualsGlobais();
         if(isAdmin){
     
         document.getElementById(
@@ -1866,7 +1867,147 @@ async function converterAccrual(id){
         alert("Erro ao converter.");
 
     }
-}  
+} 
+function renderAccrualsGlobais(){
+
+    const filtroUser =
+        document.getElementById("filterAccrualUser").value;
+
+    const filtroAno =
+        document.getElementById("filterAccrualAno").value;
+
+    const filtroMes =
+        document.getElementById("filterAccrualMes").value;
+
+    // =====================================
+    // PREENCHER DROPDOWNS
+    // =====================================
+
+    const users =
+        [...new Set(
+            accrualsGlobais.map(a => a.colaborador)
+        )];
+
+    const anos =
+        [...new Set(
+            accrualsGlobais.map(a => a.ano)
+        )].sort((a,b)=>b-a);
+
+    const userSelect =
+        document.getElementById("filterAccrualUser");
+
+    const anoSelect =
+        document.getElementById("filterAccrualAno");
+
+    if(userSelect.options.length <= 1){
+
+        users.forEach(u=>{
+
+            userSelect.innerHTML += `
+                <option value="${u}">
+                    ${u}
+                </option>
+            `;
+        });
+    }
+
+    if(anoSelect.options.length <= 1){
+
+        anos.forEach(a=>{
+
+            anoSelect.innerHTML += `
+                <option value="${a}">
+                    ${a}
+                </option>
+            `;
+        });
+    }
+
+    // =====================================
+    // FILTRAR
+    // =====================================
+
+    const lista = accrualsGlobais
+
+        .filter(a =>
+            filtroUser === "todos"
+            ||
+            a.colaborador === filtroUser
+        )
+
+        .filter(a =>
+            filtroAno === "todos"
+            ||
+            a.ano == filtroAno
+        )
+
+        .filter(a =>
+            filtroMes === "todos"
+            ||
+            a.mes == filtroMes
+        )
+
+        .sort((a,b)=>b.data-a.data);
+
+    // =====================================
+    // TOTAL
+    // =====================================
+
+    const total =
+        lista.reduce((s,a)=>s+a.valor,0);
+
+    document.getElementById(
+        "totalAccrualsGlobais"
+    ).innerText = euro(total);
+
+    // =====================================
+    // TABELA
+    // =====================================
+
+    const html = lista.map(a=>`
+
+        <tr>
+
+            <td>
+                ${a.data.toLocaleDateString("pt-PT")}
+            </td>
+
+            <td>
+                ${a.colaborador}
+            </td>
+
+            <td>
+                ${a.fornecedor}
+            </td>
+
+            <td>
+                ${a.categoria}
+            </td>
+
+            <td class="orange">
+                <strong>
+                    ${euro(a.valor)}
+                </strong>
+            </td>
+
+        </tr>
+
+    `).join("");
+
+    document.getElementById(
+        "tabelaAccrualsGlobais"
+    ).innerHTML =
+
+        html ||
+
+        `
+        <tr>
+            <td colspan="5">
+                Sem accruals.
+            </td>
+        </tr>
+        `;
+}    
 function renderProjetos(){
 
     const html = projetos.map(p=>{
