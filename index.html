@@ -1030,11 +1030,10 @@ async function load(){
     const budgetData =
         await graphGet("BudgetColaboradores");
     const adminsData =
-    await graphGet("AdminsBudgetOS");
+    await graphGet("AdminsAccruals");
+
 const projetosData =
-    await graphGet("ProjetosFinanceiros");
-const adminsData =
-    await graphGet("AdminsAccruals");    
+    await graphGet("ProjetosFinanceiros");    
     let despesas = 0;
     let accruals = 0;
     let budget = 0;
