@@ -1040,19 +1040,6 @@ const projetosData =
     let mensal = new Array(12).fill(0);
     isAdmin = false;
 
-adminsData.value?.forEach(i=>{
-
-    const f = i.fields || {};
-
-    if(
-        (f.Email || "").toLowerCase() === userEmail.toLowerCase()
-        &&
-        f.Ativo === true
-    ){
-        isAdmin = true;
-    }
-
-});
 isAdmin = adminsData.value?.some(a => {
 
     const f = a.fields || {};
@@ -1199,18 +1186,18 @@ projetosData.value?.forEach(i=>{
 
     });
 
-    renderDashboard(budget, despesas, accruals, mensal);
-    renderRecent();
-    setupFilters();
-    renderHistory();
-    renderProjetos();
-    if(isAdmin){
-
-    document.getElementById(
-        "menuAccrualsGlobais"
-    ).style.display = "block";
-
-}else{
+        renderDashboard(budget, despesas, accruals, mensal);
+        renderRecent();
+        setupFilters();
+        renderHistory();
+        renderProjetos();
+        if(isAdmin){
+    
+        document.getElementById(
+            "menuAccrualsGlobais"
+        ).style.display = "block";
+    
+    }else{
 
     document.getElementById(
         "menuAccrualsGlobais"
