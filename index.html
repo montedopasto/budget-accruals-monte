@@ -915,6 +915,7 @@ projetosData.value?.forEach(i=>{
     renderRecent();
     setupFilters();
     renderHistory();
+    renderProjetos();
 }
 
 function renderDashboard(budget,despesas,accruals,mensal){
@@ -1605,6 +1606,196 @@ async function converterAccrual(id){
 
     }
 }  
+function renderProjetos(){
+
+    const html = projetos.map(p=>{
+
+        let corEstado = "#64748b";
+
+        if(p.estado === "A Decorrer"){
+            corEstado = "#3b82f6";
+        }
+
+        if(p.estado === "Feito Não Faturado"){
+            corEstado = "#f59e0b";
+        }
+
+        if(p.estado === "Fechado"){
+            corEstado = "#22c55e";
+        }
+
+        return `
+
+            <tr>
+
+                <td>
+                    ${p.fornecedor}
+                </td>
+
+                <td>
+                    ${p.detalhe}
+                </td>
+
+                <td>
+                    ${p.ccustos}
+                </td>
+
+                <td>
+                    ${p.periodo}
+                </td>
+
+                <td>
+                    ${euro(p.valor)}
+                </td>
+
+                <td>
+
+                    <span style="
+                    background:${corEstado}15;
+                    color:${corEstado};
+                    padding:6px 10px;
+                    border-radius:999px;
+                    font-size:12px;
+                    font-weight:800;
+                    ">
+
+                        ${p.estado}
+
+                    </span>
+
+                </td>
+
+                <td>
+
+                    ${
+                        p.estado === "A Decorrer"
+                        ?
+                        `
+                        <button
+                            onclick="marcarProjetoFeito('${p.id}')"
+                            style="
+                            border:none;
+                            background:#22c55e;
+                            color:white;
+                            padding:8px 12px;
+                            border-radius:10px;
+                            cursor:pointer;
+                            font-weight:700;
+                            ">
+                            ✔ Marcar Feito
+                        </button>
+                        `
+                        :
+                        ""
+                    }
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }).join("");
+
+    document.getElementById("tabelaProjetos").innerHTML =
+        html ||
+        `
+        <tr>
+            <td colspan="7">
+                Sem projetos.
+            </td>
+        </tr>
+        `;
+} 
+async function guardarProjeto(){
+
+    const fornecedor =
+        document.getElementById("projFornecedor").value;
+
+    const detalhe =
+        document.getElementById("projDetalhe").value;
+
+    const ccustos =
+        document.getElementById("projCCustos").value;
+
+    const valor =
+        parseFloat(
+            document.getElementById("projValor").value
+        ) || 0;
+
+    const periodo =
+        document.getElementById("projPeriodo").value;
+
+    if(!fornecedor || !valor){
+
+        alert("Preenche fornecedor e valor.");
+
+        return;
+    }
+
+    const t = await token();
+
+    const item = {
+
+        fields:{
+
+            Title: fornecedor,
+
+            Fornecedor: fornecedor,
+
+            Detalhe: detalhe,
+
+            CCustos: ccustos,
+
+            ValorProjeto: valor,
+
+            Periodo: periodo,
+
+            EstadoProjeto: "A Decorrer",
+
+            Faturado: false,
+
+            CriadoPorEmail: userEmail
+
+        }
+
+    };
+
+    const res = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/ProjetosFinanceiros/items`,
+        {
+            method:"POST",
+            headers:{
+                Authorization:`Bearer ${t}`,
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify(item)
+        }
+    );
+
+    if(!res.ok){
+
+        const txt = await res.text();
+
+        console.error(txt);
+
+        alert("Erro guardar projeto.");
+
+        return;
+    }
+
+    fecharProjeto();
+
+    document.getElementById("projFornecedor").value = "";
+    document.getElementById("projDetalhe").value = "";
+    document.getElementById("projCCustos").value = "";
+    document.getElementById("projValor").value = "";
+    document.getElementById("projPeriodo").value = "";
+
+    await load();
+
+    alert("Projeto criado.");
+}    
 function abrirNovoProjeto(){
 
     document.getElementById("modalProjeto").style.display =
