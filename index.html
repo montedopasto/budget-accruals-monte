@@ -863,7 +863,42 @@ const projetosData =
 });
 
     });
+projetos = [];
 
+projetosData.value?.forEach(i=>{
+
+    const f = i.fields || {};
+
+    if(f.CriadoPorEmail !== userEmail) return;
+
+    projetos.push({
+
+        id: i.id,
+
+        fornecedor:
+            f.Fornecedor || "",
+
+        detalhe:
+            f.Detalhe || "",
+
+        ccustos:
+            f.CCustos || "",
+
+        valor:
+            parseFloat(f.ValorProjeto) || 0,
+
+        periodo:
+            f.Periodo || "",
+
+        estado:
+            f.EstadoProjeto || "A Decorrer",
+
+        faturado:
+            f.Faturado || false
+
+    });
+
+});
     budgetData.value?.forEach(i=>{
 
         const f = i.fields || {};
