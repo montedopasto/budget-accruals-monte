@@ -598,6 +598,7 @@ async function init(){
         document.getElementById("user").innerText = userEmail;
 
         await loadCategorias();
+        await loadCCustosProjetos();
         await load();
 
     }catch(e){
