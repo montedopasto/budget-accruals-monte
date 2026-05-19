@@ -1048,6 +1048,21 @@ const adminsData =
     let accruals = 0;
     let budget = 0;
     let mensal = new Array(12).fill(0);
+    isAdmin = false;
+
+adminsData.value?.forEach(i=>{
+
+    const f = i.fields || {};
+
+    if(
+        (f.Email || "").toLowerCase() === userEmail.toLowerCase()
+        &&
+        f.Ativo === true
+    ){
+        isAdmin = true;
+    }
+
+});
 isAdmin = adminsData.value?.some(a => {
 
     const f = a.fields || {};
