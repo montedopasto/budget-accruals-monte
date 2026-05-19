@@ -633,7 +633,152 @@ gap:14px;
         </table>
 
     </div>
+<section id="accrualsGlobais" class="section">
 
+    <div class="card">
+
+        <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:24px;
+        ">
+
+            <div>
+
+                <h2>
+                    Relatório Global de Accruals
+                </h2>
+
+                <div style="
+                color:#64748b;
+                margin-top:4px;
+                font-size:14px;
+                ">
+
+                    Todos os accruals pendentes da empresa
+
+                </div>
+
+            </div>
+
+            <div style="
+            background:#fff7ed;
+            color:#ea580c;
+            padding:14px 18px;
+            border-radius:16px;
+            font-weight:800;
+            ">
+
+                Total:
+                <span id="totalAccrualsGlobais">
+                    0€
+                </span>
+
+            </div>
+
+        </div>
+
+        <div class="filters">
+
+            <label>
+
+                Utilizador
+
+                <select
+                    id="filterAccrualUser"
+                    onchange="renderAccrualsGlobais()">
+
+                    <option value="todos">
+                        Todos
+                    </option>
+
+                </select>
+
+            </label>
+
+            <label>
+
+                Ano
+
+                <select
+                    id="filterAccrualAno"
+                    onchange="renderAccrualsGlobais()">
+
+                    <option value="todos">
+                        Todos
+                    </option>
+
+                </select>
+
+            </label>
+
+            <label>
+
+                Mês
+
+                <select
+                    id="filterAccrualMes"
+                    onchange="renderAccrualsGlobais()">
+
+                    <option value="todos">
+                        Todos
+                    </option>
+
+                    <option value="1">Janeiro</option>
+                    <option value="2">Fevereiro</option>
+                    <option value="3">Março</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Maio</option>
+                    <option value="6">Junho</option>
+                    <option value="7">Julho</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+
+                </select>
+
+            </label>
+
+        </div>
+
+        <table class="table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Data</th>
+                    <th>Utilizador</th>
+                    <th>Fornecedor</th>
+                    <th>Categoria</th>
+                    <th>Valor</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="tabelaAccrualsGlobais">
+
+                <tr>
+
+                    <td colspan="5">
+
+                        Sem accruals.
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
 </section>    
 </div>
 
