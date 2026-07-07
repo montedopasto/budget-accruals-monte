@@ -379,91 +379,44 @@ gap:14px;
     </div>
 </section>
 
-<section id="novo" class="section">
+<section id="importar" class="section">
 
     <div class="card">
 
-        <h2>Novo Documento</h2>
+        <h2>Importar Ficheiro Mensal</h2>
+
+        <p style="color:#64748b">
+            Carrega aqui o ficheiro Excel mensal com os valores consumidos por área.
+        </p>
 
         <div class="form-grid">
 
+            <label>
+                Ano
+                <input type="number" id="importAno" value="2026">
+            </label>
+
+            <label>
+                Mês
+                <input type="number" id="importMes" min="1" max="12">
+            </label>
+
             <label class="full">
-                PDF / Imagem
-                <input type="file" id="pdfFile" accept=".pdf,image/*">
+                Ficheiro Excel
+                <input type="file" id="excelFile" accept=".xlsx,.xls">
             </label>
 
-            <label>
-                Tipo Documento
-                <select id="tipoDocumento">
-                    <option value="Despesa">Despesa</option>
-                    <option value="Accrual">Accrual</option>
-                </select>
-            </label>
-
-            <label>
-                Categoria
-                <select id="categoriaDocumento"></select>
-            </label>
-            <label>
-    Fornecedor
-    <input type="text" id="fornecedorDocumento">
-</label>
-
-<label>
-    Valor
-    <input type="number" id="valorDocumento" step="0.01">
-</label>
-
-<label>
-    Número Documento
-    <input type="text" id="numeroDocumento">
-</label>
-
-<label>
-    Data Documento
-    <input type="date" id="dataDocumento">
-</label>
-
-<label>
-    Mês Documento
-    <input type="number" id="mesDocumento" min="1" max="12">
-</label>
-
-<label>
-    Ano Documento
-    <input type="number" id="anoDocumento">
-</label>
-            <div class="full" style="display:flex;gap:12px">
-
-    <button
-        type="button"
-        class="action"
-        style="flex:1;background:#0f172a"
-        onclick="obterDadosPDF()">
-
-        Obter Dados PDF
-
-    </button>
-
-    <button
-        type="button"
-        class="action"
-        style="flex:1"
-        onclick="uploadDocumento()">
-
-        Guardar Documento
-
-    </button>
-
-</div>
+            <div class="full">
+                <button class="action" style="width:100%">
+                    Importar Dados
+                </button>
+            </div>
 
         </div>
 
     </div>
 
 </section>
-
-<section id="historico" class="section">
     <div class="card">
         <h2>Histórico</h2>
         <div class="filters">
