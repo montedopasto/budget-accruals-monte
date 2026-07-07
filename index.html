@@ -448,9 +448,9 @@ function renderDashboard(){
                 .filter(b=>b.ano === ano && b.area === area)
                 .reduce((s,b)=>s+b.budget,0);
 
-            const consumido = consumos
-                .filter(c=>c.ano === ano && c.mes <= mes && c.area === area)
-                .reduce((s,c)=>s+c.valor,0);
+const consumido = consumos
+    .filter(c=>c.ano === ano && c.mes === mes && c.area === area)
+    .reduce((s,c)=>s+c.valor,0);
 
             const disponivel = budget - consumido;
             const execucao = budget > 0 ? (consumido / budget) * 100 : 0;
