@@ -410,31 +410,36 @@ gap:14px;
     </div>
 
 </section>
+    <section id="historicoImports" class="section">
+
     <div class="card">
-        <h2>Histórico</h2>
-        <div class="filters">
-            <label>Ano<select id="filterAno" onchange="renderHistory()"></select></label>
-            <label>Mês<select id="filterMes" onchange="renderHistory()"></select></label>
-            <label>Tipo<select id="filterTipo" onchange="renderHistory()">
-                <option value="todos">Todos</option>
-                <option value="Despesa">Despesas</option>
-                <option value="Accrual">Accruals</option>
-            </select></label>
-        </div>
+
+        <h2>Histórico de Importações</h2>
+
         <table class="table">
+
             <thead>
                 <tr>
-    <th>Data</th>
-    <th>Tipo</th>
-    <th>Fornecedor</th>
-    <th>Categoria</th>
-    <th>Valor</th>
-    <th></th>
-</tr>
+                    <th>Data Importação</th>
+                    <th>Ano</th>
+                    <th>Mês</th>
+                    <th>Importado por</th>
+                    <th>Registos</th>
+                </tr>
             </thead>
-            <tbody id="historyTable"></tbody>
+
+            <tbody id="tabelaHistoricoImports">
+                <tr>
+                    <td colspan="5">
+                        Ainda não existem importações.
+                    </td>
+                </tr>
+            </tbody>
+
         </table>
+
     </div>
+
 </section>
 <section id="projetos" class="section">
 
