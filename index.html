@@ -545,59 +545,48 @@ async function importarExcel(){
         return;
     }
 
-    const colArea = detectarColuna(rows[0],[
-    "area",
-    "área",
-    "areas",
-    "áreas",
-    "centrodecustos",
-    "centrodecusto",
-    "centro custos",
-    "centro de custos",
-    "ccustos",
-    "c custos",
-    "cc",
-    "departamento",
-    "rubrica",
-    "designacao",
-    "descrição",
-    "descricao"
-]);
-
-const colValor = detectarColuna(rows[0],[
-    "valor",
-    "valorconsumido",
-    "valor consumido",
-    "consumido",
-    "real",
-    "acumulado",
-    "total",
-    "montante",
-    "eur",
-    "euros",
-    "valor eur"
-]);
-
-    if(!colArea || !colValor){
-        alert("Não consegui encontrar as colunas de Área e Valor.");
-        return;
-    }
+    const AREAS = [
+        "Intensivo Engorda",
+        "Extensivo Vacadas",
+        "Fábrica Rações",
+        "Borregos",
+        "Care & Welfare",
+        "Terrenos",
+        "Financeiro e Admin.",
+        "Loja",
+        "True Born",
+        "Outros"
+    ];
 
     const agrupado = {};
 
-    rows.forEach(r=>{
-        const area = String(r[colArea] || "").trim();
-        const valor = parseFloat(
-            String(r[colValor])
-                .replace(/\s/g,"")
-                .replace("€","")
-                .replace(/\./g,"")
-                .replace(",",".")
-        ) || 0;
+    AREAS.forEach(area=>{
+        agrupado[area] = 0;
+    });
 
-        if(!area) return;
+    rows.forEach(row=>{
 
-        agrupado[area] = (agrupado[area] || 0) + valor;
+        Object.keys(row).forEach(coluna=>{
+
+            const nomeColuna = String(coluna).trim();
+
+            const areaEncontrada = AREAS.find(a =>
+                normalizarNome(a) === normalizarNome(nomeColuna)
+            );
+
+            if(!areaEncontrada) return;
+
+            const valor = parseFloat(
+                String(row[coluna])
+                    .replace(/\s/g,"")
+                    .replace("€","")
+                    .replace(/\./g,"")
+                    .replace(",",".")
+            ) || 0;
+
+            agrupado[areaEncontrada] += valor;
+        });
+
     });
 
     const linhas = Object.entries(agrupado)
@@ -605,11 +594,14 @@ const colValor = detectarColuna(rows[0],[
         .filter(l=>l.valor !== 0);
 
     if(!linhas.length){
-        alert("Não encontrei valores válidos para importar.");
+        alert("Não encontrei valores válidos nas colunas das áreas.");
         return;
     }
 
-    const existentes = consumos.filter(c=>c.ano === ano && c.mes === mes);
+    const existentes = consumos.filter(c =>
+        c.ano === ano &&
+        c.mes === mes
+    );
 
     for(const item of existentes){
         await graphDelete(LIST_CONSUMOS,item.id);
