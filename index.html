@@ -562,54 +562,55 @@ async function importarExcel(){
     const workbook = XLSX.read(buffer,{type:"array"});
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet,{defval:""});
-console.log("COLUNAS EXCEL:", Object.keys(rows[0]));
-console.log("PRIMEIRA LINHA:", rows[0]);
-    
+
     if(!rows.length){
         alert("O ficheiro está vazio.");
         return;
     }
 
-    const AREAS = [
-        "Intensivo Engorda",
-        "Extensivo Vacadas",
-        "Fábrica Rações",
-        "Borregos",
-        "Care & Welfare",
-        "Terrenos",
-        "Financeiro e Admin.",
-        "Loja",
-        "True Born",
-        "Outros"
+    const ignorar = [
+        "entity",
+        "primaveracode",
+        "accountname",
+        "mes",
+        "mês",
+        "acumulado"
     ];
+
+    const colunas = Object.keys(rows[0]);
+
+    const colunasAreas = colunas.filter(c =>
+        !ignorar.includes(normalizarNome(c))
+    );
+
+    if(!colunasAreas.length){
+        alert("Não encontrei colunas de áreas no ficheiro.");
+        return;
+    }
 
     const agrupado = {};
 
-    AREAS.forEach(area=>{
-        agrupado[area] = 0;
-    });
+    rows.forEach(r=>{
 
-    rows.forEach(row=>{
+        colunasAreas.forEach(col=>{
 
-        Object.keys(row).forEach(coluna=>{
-
-            const nomeColuna = String(coluna).trim();
-
-            const areaEncontrada = AREAS.find(a =>
-                normalizarNome(a) === normalizarNome(nomeColuna)
-            );
-
-            if(!areaEncontrada) return;
+            const area = String(col)
+                .replace(/\r/g,"")
+                .replace(/\n/g,"")
+                .trim();
 
             const valor = parseFloat(
-                String(row[coluna])
+                String(r[col])
                     .replace(/\s/g,"")
                     .replace("€","")
                     .replace(/\./g,"")
                     .replace(",",".")
             ) || 0;
 
-            agrupado[areaEncontrada] += valor;
+            if(!area) return;
+
+            agrupado[area] = (agrupado[area] || 0) + valor;
+
         });
 
     });
@@ -619,18 +620,17 @@ console.log("PRIMEIRA LINHA:", rows[0]);
         .filter(l=>l.valor !== 0);
 
     if(!linhas.length){
-        alert("Não encontrei valores válidos nas colunas das áreas.");
+        alert("Não encontrei valores válidos para importar.");
         return;
     }
 
-    const existentes = consumos.filter(c =>
-        c.ano === ano &&
-        c.mes === mes
-    );
+    const existentes = consumos.filter(c=>c.ano === ano && c.mes === mes);
 
     for(const item of existentes){
         await graphDelete(LIST_CONSUMOS,item.id);
     }
+
+    const importacaoID = `${ano}-${String(mes).padStart(2,"0")}-${Date.now()}`;
 
     for(const l of linhas){
         await graphPost(LIST_CONSUMOS,{
@@ -639,20 +639,20 @@ console.log("PRIMEIRA LINHA:", rows[0]);
             Ano:ano,
             Mes:mes,
             ValorConsumido:l.valor,
-ImportacaoID:`${ano}-${String(mes).padStart(2,"0")}-${Date.now()}`
+            ImportacaoID:importacaoID
         });
     }
 
     const total = linhas.reduce((s,l)=>s+l.valor,0);
 
     await graphPost(LIST_IMPORTS,{
-    Title:`${ano}-${String(mes).padStart(2,"0")} ${file.name}`,
-    DataImportacao:new Date().toISOString(),
-    NomeFicheiro:file.name,
-    Ano:ano,
-    Mes:mes,
-    ImportadoPor:userEmail
-});
+        Title:`${ano}-${String(mes).padStart(2,"0")} ${file.name}`,
+        DataImportacao:new Date().toISOString(),
+        NomeFicheiro:file.name,
+        Ano:ano,
+        Mes:mes,
+        ImportadoPor:userEmail
+    });
 
     document.getElementById("importResultado").innerHTML = `
         <div class="notice">
