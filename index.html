@@ -585,13 +585,22 @@ async function importarExcel(){
             r["Valor Acumulado"] ??
             0;
 
-        const valor = parseFloat(
-            String(valorRaw)
-                .replace(/\s/g,"")
-                .replace("€","")
-                .replace(/\./g,"")
-                .replace(",",".")
-        ) || 0;
+        let valor = 0;
+
+if(typeof valorRaw === "number"){
+
+    valor = valorRaw;
+
+}else{
+
+    valor = parseFloat(
+        String(valorRaw)
+            .replace(/\s/g,"")
+            .replace("€","")
+            .replace(",",".")
+    ) || 0;
+
+}
 
         return {
             area,
