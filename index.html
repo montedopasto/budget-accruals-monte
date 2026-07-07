@@ -449,7 +449,7 @@ function renderDashboard(){
                 .reduce((s,b)=>s+b.budget,0);
 
 const consumido = consumos
-    .filter(c=>c.ano === ano && c.mes === mes && c.area === area)
+    .filter(c=>c.ano === ano && c.mes <= mes && c.area === area)
     .reduce((s,c)=>s+c.valor,0);
 
             const disponivel = budget - consumido;
