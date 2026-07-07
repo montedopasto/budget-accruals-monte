@@ -278,7 +278,7 @@ async function graphGet(listName){
 async function graphPost(listName, fields){
     const t = await token();
 
-    const res = await fetch(
+    let res = await fetch(
         `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listName}/items`,
         {
             method:"POST",
@@ -287,6 +287,29 @@ async function graphPost(listName, fields){
                 "Content-Type":"application/json"
             },
             body:JSON.stringify({fields})
+        }
+    );
+
+    if(res.ok){
+        return await res.json();
+    }
+
+    const erro = await res.text();
+    console.warn("Erro Graph POST inicial:", erro);
+
+    // fallback sem campo Ficheiro
+    const fieldsFallback = {...fields};
+    delete fieldsFallback.Ficheiro;
+
+    res = await fetch(
+        `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listName}/items`,
+        {
+            method:"POST",
+            headers:{
+                Authorization:`Bearer ${t}`,
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({fields: fieldsFallback})
         }
     );
 
