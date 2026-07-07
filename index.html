@@ -546,23 +546,37 @@ async function importarExcel(){
     }
 
     const colArea = detectarColuna(rows[0],[
-        "area",
-        "areas",
-        "centrodecustos",
-        "centrocustos",
-        "ccustos",
-        "departamento",
-        "rubrica"
-    ]);
+    "area",
+    "área",
+    "areas",
+    "áreas",
+    "centrodecustos",
+    "centrodecusto",
+    "centro custos",
+    "centro de custos",
+    "ccustos",
+    "c custos",
+    "cc",
+    "departamento",
+    "rubrica",
+    "designacao",
+    "descrição",
+    "descricao"
+]);
 
-    const colValor = detectarColuna(rows[0],[
-        "valor",
-        "valorconsumido",
-        "consumido",
-        "real",
-        "acumulado",
-        "total"
-    ]);
+const colValor = detectarColuna(rows[0],[
+    "valor",
+    "valorconsumido",
+    "valor consumido",
+    "consumido",
+    "real",
+    "acumulado",
+    "total",
+    "montante",
+    "eur",
+    "euros",
+    "valor eur"
+]);
 
     if(!colArea || !colValor){
         alert("Não consegui encontrar as colunas de Área e Valor.");
