@@ -446,9 +446,9 @@ async function loadData(){
             data:i.createdDateTime ? new Date(i.createdDateTime) : new Date(),
             ano:parseInt(f.Ano) || "",
             mes:parseInt(f.Mes) || "",
-            ficheiro:f.Ficheiro || "",
-            linhas:parseInt(f.Linhas) || 0,
-            total:parseFloat(f.TotalImportado) || 0,
+            ficheiro:f.NomeFicheiro || "",
+linhas:"",
+total:0,
             utilizador:f.ImportadoPor || ""
         };
     });
