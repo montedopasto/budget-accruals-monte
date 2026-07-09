@@ -12,7 +12,30 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:#f4f6fb;color:#111827}
-.header{height:76px;background:white;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;padding:0 32px}
+.header{
+    min-height:76px;
+    height:auto;
+    background:white;
+    border-bottom:1px solid #e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 32px;
+    gap:18px;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:28px;
+    min-width:0;
+}
+
+.menu{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
 .brand{display:flex;align-items:center;gap:28px}
 .logo{display:flex;align-items:center;gap:14px;font-weight:800}
 .logo img{height:42px;width:auto;object-fit:contain}
