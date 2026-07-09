@@ -464,11 +464,15 @@ const totalConsumido = linhas.reduce((s,l)=>s+l.consumido,0);
 
 const planoAteMes = totalBudget / 12 * mes;
 const desvioPlano = planoAteMes - totalConsumido;
-
+const percentagemPlano =
+    planoAteMes > 0
+        ? (desvioPlano / planoAteMes) * 100
+        : 0;
 document.getElementById("kBudget").innerText = euro(totalBudget);
 document.getElementById("kPlanoMes").innerText = euro(planoAteMes);
 document.getElementById("kConsumido").innerText = euro(totalConsumido);
-document.getElementById("kDesvioPlano").innerText = euro(desvioPlano);
+document.getElementById("kDesvioPlano").innerText =
+    `${euro(desvioPlano)} (${percentagemPlano.toFixed(1)}%)`;
 
 document.getElementById("kDesvioPlano").className =
     desvioPlano < 0 ? "red" : "green";
