@@ -493,7 +493,7 @@ document.getElementById("kDesvioPlano").className =
             `;
         }).join("") || `<tr><td colspan="5">Sem dados.</td></tr>`;
 
-    renderCharts(linhas,totalConsumido,totalDisponivel);
+    renderCharts(linhas,totalConsumido,desvioPlano);
 }
 
 function renderCharts(linhas,totalConsumido,totalDisponivel){
@@ -520,7 +520,7 @@ function renderCharts(linhas,totalConsumido,totalDisponivel){
     donutChart = new Chart(document.getElementById("donutChart"),{
         type:"doughnut",
         data:{
-            labels:["Consumido","Disponível"],
+            labels:["Consumido","Desvio ao plano"],
             datasets:[{
                 data:[totalConsumido,Math.max(totalDisponivel,0)],
                 backgroundColor:["#6366f1","#e5e7eb"],
