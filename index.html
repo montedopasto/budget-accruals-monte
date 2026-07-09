@@ -91,10 +91,10 @@ input,select{width:100%;margin-top:6px;padding:12px;border:1px solid #dbe3ef;bor
         </div>
 
         <div class="kpis">
-            <div class="kpi"><span>Budget anual</span><b id="kBudget">0€</b></div>
-            <div class="kpi"><span>Consumido</span><b id="kConsumido">0€</b></div>
-            <div class="kpi"><span>Disponível</span><b id="kDisponivel">0€</b></div>
-            <div class="kpi"><span>Execução</span><b id="kExecucao">0%</b></div>
+<div class="kpi"><span>Budget anual</span><b id="kBudget">0€</b></div>
+<div class="kpi"><span>Plano até ao mês</span><b id="kPlanoMes">0€</b></div>
+<div class="kpi"><span>Consumido</span><b id="kConsumido">0€</b></div>
+<div class="kpi"><span>Desvio ao plano</span><b id="kDesvioPlano">0€</b></div>
         </div>
 
         <div class="charts">
@@ -115,8 +115,8 @@ input,select{width:100%;margin-top:6px;padding:12px;border:1px solid #dbe3ef;bor
                     <th>Área</th>
                     <th>Budget anual</th>
                     <th>Consumido</th>
-                    <th>Disponível</th>
-                    <th>Execução</th>
+                    <th>Plano até ao mês</th>
+<th>Desvio ao plano</th>
                 </tr>
             </thead>
             <tbody id="tabelaAreas"></tbody>
@@ -452,21 +452,26 @@ const consumido = consumos
     .filter(c=>c.ano === ano && c.mes <= mes && c.area === area)
     .reduce((s,c)=>s+c.valor,0);
 
-            const disponivel = budget - consumido;
-            const execucao = budget > 0 ? (consumido / budget) * 100 : 0;
+            const planoMes = budget / 12 * mes;
+const desvioPlano = planoMes - consumido;
+const execucao = planoMes > 0 ? (consumido / planoMes) * 100 : 0;
 
-            return {area,budget,consumido,disponivel,execucao};
+return {area,budget,consumido,planoMes,desvioPlano,execucao};
         });
 
     const totalBudget = linhas.reduce((s,l)=>s+l.budget,0);
-    const totalConsumido = linhas.reduce((s,l)=>s+l.consumido,0);
-    const totalDisponivel = totalBudget - totalConsumido;
-    const execucaoTotal = totalBudget > 0 ? (totalConsumido / totalBudget) * 100 : 0;
+const totalConsumido = linhas.reduce((s,l)=>s+l.consumido,0);
 
-    document.getElementById("kBudget").innerText = euro(totalBudget);
-    document.getElementById("kConsumido").innerText = euro(totalConsumido);
-    document.getElementById("kDisponivel").innerText = euro(totalDisponivel);
-    document.getElementById("kExecucao").innerText = execucaoTotal.toFixed(1) + "%";
+const planoAteMes = totalBudget / 12 * mes;
+const desvioPlano = planoAteMes - totalConsumido;
+
+document.getElementById("kBudget").innerText = euro(totalBudget);
+document.getElementById("kPlanoMes").innerText = euro(planoAteMes);
+document.getElementById("kConsumido").innerText = euro(totalConsumido);
+document.getElementById("kDesvioPlano").innerText = euro(desvioPlano);
+
+document.getElementById("kDesvioPlano").className =
+    desvioPlano < 0 ? "red" : "green";
 
     document.getElementById("tabelaAreas").innerHTML =
         linhas.map(l=>{
@@ -477,13 +482,13 @@ const consumido = consumos
                     <td><strong>${l.area}</strong></td>
                     <td>${euro(l.budget)}</td>
                     <td>${euro(l.consumido)}</td>
-                    <td class="${l.disponivel < 0 ? "red" : "green"}"><strong>${euro(l.disponivel)}</strong></td>
-                    <td>
-                        <strong class="${cls}">${l.execucao.toFixed(1)}%</strong>
-                        <div class="progress" style="margin-top:6px">
-                            <div style="width:${Math.min(l.execucao,100)}%;background:${l.execucao>=100?"#ef4444":l.execucao>=80?"#f97316":"#22c55e"}"></div>
-                        </div>
-                    </td>
+                    <td>${euro(l.planoMes)}</td>
+<td class="${l.desvioPlano < 0 ? "red" : "green"}">
+    <strong>${euro(l.desvioPlano)}</strong>
+    <div class="progress" style="margin-top:6px">
+        <div style="width:${Math.min(l.execucao,100)}%;background:${l.execucao>=100?"#ef4444":l.execucao>=80?"#f97316":"#22c55e"}"></div>
+    </div>
+</td>
                 </tr>
             `;
         }).join("") || `<tr><td colspan="5">Sem dados.</td></tr>`;
