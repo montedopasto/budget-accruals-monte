@@ -17,11 +17,21 @@ body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:#f4f6fb
     height:auto;
     background:white;
     border-bottom:1px solid #e5e7eb;
-    display:flex;
+    display:grid;
+    grid-template-columns:auto 1fr auto;
     align-items:center;
-    justify-content:space-between;
+    gap:24px;
     padding:12px 32px;
-    gap:18px;
+}.header{
+    min-height:76px;
+    height:auto;
+    background:white;
+    border-bottom:1px solid #e5e7eb;
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    align-items:center;
+    gap:24px;
+    padding:12px 32px;
 }
 
 .brand{
@@ -76,33 +86,24 @@ input,select{width:100%;margin-top:6px;padding:12px;border:1px solid #dbe3ef;bor
 <body>
 
 <div class="header">
-    <div class="brand">
-        <div class="logo">
-            <img src="logo-monte-do-pasto.png">
-            <div>
-                <div style="font-size:20px;line-height:1">Budget por Área OS</div>
-                <div style="font-size:11px;color:#64748b;margin-top:4px;letter-spacing:.5px;text-transform:uppercase">Monte do Pasto</div>
-            </div>
+
+    <div class="logo">
+        <img src="logo-monte-do-pasto.png">
+        <div>
+            <div style="font-size:20px;line-height:1">Budget por Área OS</div>
+            <div style="font-size:11px;color:#64748b;margin-top:4px;letter-spacing:.5px;text-transform:uppercase">Monte do Pasto</div>
         </div>
+    </div>
 
-       <div class="menu">
-    <button class="active" onclick="showSection('dashboard',this)">Dashboard</button>
-
-    <button onclick="showSection('importar',this)">
-        Importar Consumos
-    </button>
-
-    <button onclick="showSection('importarRubricas',this)">
-        Importar Rubricas
-    </button>
-
-    <button onclick="showSection('historicoImports',this)">
-        Histórico Imports
-    </button>
-</div>
+    <div class="menu">
+        <button class="active" onclick="showSection('dashboard',this)">Dashboard</button>
+        <button onclick="showSection('importar',this)">Importar Consumos</button>
+        <button onclick="showSection('importarRubricas',this)">Importar Rubricas</button>
+        <button onclick="showSection('historicoImports',this)">Histórico Imports</button>
     </div>
 
     <div class="user" id="user">A iniciar sessão...</div>
+
 </div>
 
 <div class="page">
