@@ -150,12 +150,13 @@ input,select{width:100%;margin-top:6px;padding:12px;border:1px solid #dbe3ef;bor
         <table class="table">
             <thead>
                 <tr>
-                    <th>Área</th>
-                    <th>Budget anual</th>
-                    <th>Consumido</th>
-                    <th>Plano até ao mês</th>
-<th>Desvio ao plano</th>
-                </tr>
+    <th>Área</th>
+    <th>Responsável</th>
+    <th>Budget anual</th>
+    <th>Consumido</th>
+    <th>Plano até ao mês</th>
+    <th>Desvio ao plano</th>
+</tr>
             </thead>
             <tbody id="tabelaAreas"></tbody>
         </table>
@@ -464,15 +465,18 @@ const importsData = await graphGet(LIST_IMPORTS);
 const rubricasData = await graphGet("RubricasAreas");
 
     budgets = budgetData.value.map(i=>{
-        const f = i.fields || {};
-        return {
-            id:i.id,
-            area:f.Area || f.Title || "",
-            ano:parseInt(f.Ano) || new Date().getFullYear(),
-            budget:parseFloat(f.ValorBudget) || 0,
-            ativo:f.Ativo !== false
-        };
-    }).filter(b=>b.ativo);
+    const f = i.fields || {};
+
+    return {
+        id:i.id,
+        area:f.Area || f.Title || "",
+        ano:parseInt(f.Ano) || new Date().getFullYear(),
+        budget:parseFloat(f.ValorBudget) || 0,
+        responsavel:f.Responsavel || "Sem responsável",
+        ativo:f.Ativo !== false
+    };
+
+}).filter(b=>b.ativo);
 
     consumos = consumosData.value.map(i=>{
         const f = i.fields || {};
@@ -562,7 +566,12 @@ function renderDashboard(){
             const budget = budgets
                 .filter(b=>b.ano === ano && b.area === area)
                 .reduce((s,b)=>s+b.budget,0);
+const budgetArea = budgets.find(
+    b => b.ano === ano && b.area === area
+);
 
+const responsavel =
+    budgetArea?.responsavel || "Sem responsável";
 const consumido = consumos
     .filter(c=>c.ano === ano && c.mes <= mes && c.area === area)
     .reduce((s,c)=>s+c.valor,0);
