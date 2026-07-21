@@ -551,147 +551,261 @@ function setupFiltros(){
 }
 
 function renderDashboard(){
-    const ano = parseInt(document.getElementById("dashAno").value);
-    const mes = parseInt(document.getElementById("dashMes").value);
-    const areaFiltro = document.getElementById("dashArea").value;
+
+    const ano = parseInt(
+        document.getElementById("dashAno").value
+    );
+
+    const mes = parseInt(
+        document.getElementById("dashMes").value
+    );
+
+    const areaFiltro =
+        document.getElementById("dashArea").value;
 
     const areas = [...new Set([
-        ...budgets.filter(b=>b.ano === ano).map(b=>b.area),
-        ...consumos.filter(c=>c.ano === ano && c.mes <= mes).map(c=>c.area)
-    ])].filter(Boolean).sort();
+
+        ...budgets
+            .filter(b => b.ano === ano)
+            .map(b => b.area),
+
+        ...consumos
+            .filter(c =>
+                c.ano === ano &&
+                c.mes <= mes
+            )
+            .map(c => c.area)
+
+    ])]
+    .filter(Boolean)
+    .sort();
 
     const linhas = areas
-        .filter(area => areaFiltro === "todas" || area === areaFiltro)
-        .map(area=>{
-            const budget = budgets
-                .filter(b=>b.ano === ano && b.area === area)
-                .reduce((s,b)=>s+b.budget,0);
-const budgetArea = budgets.find(
-    b => b.ano === ano && b.area === area
-);
 
-const responsavel =
-    budgetArea?.responsavel || "Sem responsável";
-const consumido = consumos
-    .filter(c=>c.ano === ano && c.mes <= mes && c.area === area)
-    .reduce((s,c)=>s+c.valor,0);
+        .filter(area =>
+            areaFiltro === "todas" ||
+            area === areaFiltro
+        )
 
-            const planoMes = budget / 12 * mes;
-const desvioPlano = planoMes - consumido;
-const execucao = planoMes > 0 ? (consumido / planoMes) * 100 : 0;
+        .map(area => {
 
-return {
+            const budgetsArea = budgets.filter(b =>
+                b.ano === ano &&
+                b.area === area
+            );
 
-    area,
+            const budget = budgetsArea.reduce(
+                (s,b) => s + b.budget,
+                0
+            );
 
-    responsavel,
+            const budgetArea = budgetsArea[0];
 
-    budget,
+            const responsavel =
+                budgetArea?.responsavel ||
+                "Sem responsável";
 
-    consumido,
+            const consumido = consumos
 
-    planoMes,
+                .filter(c =>
+                    c.ano === ano &&
+                    c.mes <= mes &&
+                    c.area === area
+                )
 
-    desvioPlano,
+                .reduce(
+                    (s,c) => s + c.valor,
+                    0
+                );
 
-    execucao
+            const planoMes =
+                budget / 12 * mes;
 
-};
+            const desvioPlano =
+                planoMes - consumido;
 
-    const totalBudget = linhas.reduce((s,l)=>s+l.budget,0);
-const totalConsumido = linhas.reduce((s,l)=>s+l.consumido,0);
+            const execucao =
+                planoMes > 0
+                    ? (consumido / planoMes) * 100
+                    : 0;
 
-const planoAteMes = totalBudget / 12 * mes;
-const desvioPlano = planoAteMes - totalConsumido;
-const percentagemPlano =
-    planoAteMes > 0
-        ? (desvioPlano / planoAteMes) * 100
-        : 0;
-document.getElementById("kBudget").innerText = euro(totalBudget);
-document.getElementById("kPlanoMes").innerText = euro(planoAteMes);
-document.getElementById("kConsumido").innerText = euro(totalConsumido);
-document.getElementById("kDesvioPlano").innerText =
-    `${euro(desvioPlano)} (${percentagemPlano.toFixed(1)}%)`;
+            return {
+                area,
+                responsavel,
+                budget,
+                consumido,
+                planoMes,
+                desvioPlano,
+                execucao
+            };
 
-document.getElementById("kDesvioPlano").className =
-    desvioPlano < 0 ? "red" : "green";
+        });
+
+    const totalBudget =
+        linhas.reduce(
+            (s,l) => s + l.budget,
+            0
+        );
+
+    const totalConsumido =
+        linhas.reduce(
+            (s,l) => s + l.consumido,
+            0
+        );
+
+    const planoAteMes =
+        totalBudget / 12 * mes;
+
+    const desvioPlano =
+        planoAteMes - totalConsumido;
+
+    const percentagemPlano =
+        planoAteMes > 0
+            ? (desvioPlano / planoAteMes) * 100
+            : 0;
+
+    document.getElementById("kBudget").innerText =
+        euro(totalBudget);
+
+    document.getElementById("kPlanoMes").innerText =
+        euro(planoAteMes);
+
+    document.getElementById("kConsumido").innerText =
+        euro(totalConsumido);
+
+    document.getElementById("kDesvioPlano").innerText =
+        `${euro(desvioPlano)} (${percentagemPlano.toFixed(1)}%)`;
+
+    document.getElementById("kDesvioPlano").className =
+        desvioPlano < 0
+            ? "red"
+            : "green";
 
     document.getElementById("tabelaAreas").innerHTML =
-        linhas.map(l=>{
-            const cls = l.execucao >= 100 ? "red" : l.execucao >= 80 ? "orange" : "green";
+
+        linhas.map(l => {
+
+            const inicialResponsavel =
+                String(l.responsavel)
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase() || "?";
 
             return `
-                <<tr>
+                <tr>
 
-    <td>
-        <button
-            onclick="mostrarRubricasArea('${l.area.replace(/'/g,"\\'")}')"
-            style="
-                border:none;
-                background:transparent;
-                color:#6366f1;
-                font-weight:800;
-                cursor:pointer;
-                padding:0;
-                font-size:14px;
-            ">
-            ${l.area}
-        </button>
-    </td>
+                    <td>
 
-    <td>
-        <div style="display:flex;align-items:center;gap:10px">
+                        <button
+                            onclick="mostrarRubricasArea('${l.area.replace(/'/g,"\\'")}')"
+                            style="
+                                border:none;
+                                background:transparent;
+                                color:#6366f1;
+                                font-weight:800;
+                                cursor:pointer;
+                                padding:0;
+                                font-size:14px;
+                                text-align:left;
+                            "
+                        >
+                            ${l.area}
+                        </button>
 
-            <div style="
-                width:34px;
-                height:34px;
-                border-radius:50%;
-                background:#eef2ff;
-                color:#4f46e5;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                font-weight:800;
-            ">
-                ${l.responsavel.charAt(0).toUpperCase()}
-            </div>
+                    </td>
 
-            ${l.responsavel}
+                    <td>
 
-        </div>
-    </td>
+                        <div style="
+                            display:flex;
+                            align-items:center;
+                            gap:10px;
+                        ">
 
-    <td>${euro(l.budget)}</td>
+                            <div style="
+                                width:34px;
+                                height:34px;
+                                min-width:34px;
+                                border-radius:50%;
+                                background:#eef2ff;
+                                color:#4f46e5;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                font-weight:800;
+                            ">
+                                ${inicialResponsavel}
+                            </div>
 
-    <td>${euro(l.consumido)}</td>
+                            <strong>
+                                ${l.responsavel}
+                            </strong>
 
-    <td>${euro(l.planoMes)}</td>
+                        </div>
 
-    <td class="${l.desvioPlano < 0 ? "red" : "green"}">
+                    </td>
 
-        <strong>${euro(l.desvioPlano)}</strong>
+                    <td>
+                        ${euro(l.budget)}
+                    </td>
 
-        <div class="progress" style="margin-top:6px">
-            <div style="
-                width:${Math.min(l.execucao,100)}%;
-                background:${l.execucao>=100?"#ef4444":l.execucao>=80?"#f97316":"#22c55e"}
-            "></div>
-        </div>
+                    <td>
+                        ${euro(l.consumido)}
+                    </td>
 
-    </td>
+                    <td>
+                        ${euro(l.planoMes)}
+                    </td>
 
-</tr>
-<td class="${l.desvioPlano < 0 ? "red" : "green"}">
-    <strong>${euro(l.desvioPlano)}</strong>
-    <div class="progress" style="margin-top:6px">
-        <div style="width:${Math.min(l.execucao,100)}%;background:${l.execucao>=100?"#ef4444":l.execucao>=80?"#f97316":"#22c55e"}"></div>
-    </div>
-</td>
+                    <td class="${
+                        l.desvioPlano < 0
+                            ? "red"
+                            : "green"
+                    }">
+
+                        <strong>
+                            ${euro(l.desvioPlano)}
+                        </strong>
+
+                        <div
+                            class="progress"
+                            style="margin-top:6px"
+                        >
+
+                            <div style="
+                                width:${Math.min(l.execucao,100)}%;
+                                background:${
+                                    l.execucao >= 100
+                                        ? "#ef4444"
+                                        : l.execucao >= 80
+                                        ? "#f97316"
+                                        : "#22c55e"
+                                };
+                            ">
+                            </div>
+
+                        </div>
+
+                    </td>
+
                 </tr>
             `;
-        }).join("") || `<tr><td colspan="6">Sem dados.</td></tr>`;
 
-    renderCharts(linhas,totalConsumido,desvioPlano);
+        }).join("") ||
+
+        `
+            <tr>
+                <td colspan="6">
+                    Sem dados.
+                </td>
+            </tr>
+        `;
+
+    renderCharts(
+        linhas,
+        totalConsumido,
+        desvioPlano
+    );
 }
 
 function renderCharts(linhas,totalConsumido,totalDisponivel){
