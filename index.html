@@ -53,7 +53,8 @@
 </div>
 <script>
 const clientId="84a548f9-d082-4e9b-b639-1b34432df8c8",tenantId="ee417351-ea90-41e0-9147-5ea6ab38ea49",siteId="montedopastopt.sharepoint.com,210d4489-0c97-4ee7-9384-51cb3808d59a,d1a6f091-93b5-4454-b6e2-809ad4e4d73a";
-const LIST_BUDGET="BudgetAreas",LIST_CONSUMOS="ConsumoAreas",LIST_IMPORTS="HistoricoImports",LIST_RUBRICAS="RubricasAreas",LIST_PLANEAMENTO="PlaneamentoAreas",LIST_ADMINS="AdminsBudgetOS";
+const LIST_BUDGET="BudgetAreas",LIST_CONSUMOS="ConsumoAreas",LIST_IMPORTS="HistoricoImports",LIST_RUBRICAS="RubricasAreas",LIST_PLANEAMENTO="PlaneamentoAreas";
+const ADMIN_EMAIL="jose.almanso@montedopasto.pt";
 let userEmail="",userName="",isAdmin=false,budgets=[],consumos=[],historicoImports=[],rubricas=[],planeamentos=[],areasResponsavel=[],areasPermitidas=[],areaSelecionada="",barChart=null,donutChart=null;
 const msalInstance=new msal.PublicClientApplication({auth:{clientId,authority:`https://login.microsoftonline.com/${tenantId}`,redirectUri:window.location.origin}});
 const euro=v=>(Number(v)||0).toLocaleString("pt-PT",{style:"currency",currency:"EUR"});
@@ -69,13 +70,13 @@ async function graphPatch(listName,id,fields){return graphRequest(`https://graph
 async function graphDelete(listName,id){return graphRequest(`https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${encodeURIComponent(listName)}/items/${id}`,{method:"DELETE"})}
 async function init(){try{await msalInstance.handleRedirectPromise();let acc=msalInstance.getAllAccounts();if(!acc.length){const res=await msalInstance.loginPopup({scopes:["User.Read","Sites.ReadWrite.All"],prompt:"select_account"});acc=[res.account]}userEmail=acc[0].username||"";userName=acc[0].name||userEmail;document.getElementById("user").innerText=userName?`${userName} · ${userEmail}`:userEmail;await loadData()}catch(e){console.error(e);document.getElementById("user").innerText="Erro ao iniciar";alert(`Não foi possível iniciar a aplicação: ${e.message}`)}}
 async function loadOptionalList(name){try{return await graphGet(name)}catch(e){console.warn(`Lista opcional ${name} indisponível`,e);return{value:[]}}}
-async function loadData(){const [bd,cd,hd,rd,pd,ad]=await Promise.all([graphGet(LIST_BUDGET),graphGet(LIST_CONSUMOS),graphGet(LIST_IMPORTS),graphGet(LIST_RUBRICAS),loadOptionalList(LIST_PLANEAMENTO),loadOptionalList(LIST_ADMINS)]);
+async function loadData(){const [bd,cd,hd,rd,pd]=await Promise.all([graphGet(LIST_BUDGET),graphGet(LIST_CONSUMOS),graphGet(LIST_IMPORTS),graphGet(LIST_RUBRICAS),loadOptionalList(LIST_PLANEAMENTO)]);
  budgets=bd.value.map(i=>{const f=i.fields||{};return{id:i.id,area:f.Area||f.Title||"",ano:parseInt(f.Ano)||new Date().getFullYear(),budget:parseFloat(f.ValorBudget)||0,responsavel:f.Responsavel||"Sem responsável",responsavelEmail:String(f.ResponsavelEmail||"").trim(),ativo:f.Ativo!==false}}).filter(b=>b.ativo);
  consumos=cd.value.map(i=>{const f=i.fields||{};return{id:i.id,area:f.Area||f.Title||"",ano:parseInt(f.Ano)||new Date().getFullYear(),mes:parseInt(f.Mes)||1,valor:parseFloat(f.ValorConsumido)||0,ficheiro:f.Ficheiro||""}});
  rubricas=rd.value.map(i=>{const f=i.fields||{};return{id:i.id,area:f.Area||"",conta:f.Conta||f.Title||"",ano:parseInt(f.Ano)||new Date().getFullYear(),mes:parseInt(f.Mes)||1,valor:parseFloat(f.Valor)||0,importacaoID:f.ImportacaoID||""}});
  historicoImports=hd.value.map(i=>{const f=i.fields||{};return{id:i.id,data:new Date(f.DataImportacao||i.createdDateTime||Date.now()),ano:parseInt(f.Ano)||"",mes:parseInt(f.Mes)||"",ficheiro:f.NomeFicheiro||f.Ficheiro||"",linhas:parseInt(f.Linhas)||"",total:parseFloat(f.Total)||0,utilizador:f.ImportadoPor||""}});
  planeamentos=pd.value.map(i=>{const f=i.fields||{};return{id:i.id,title:f.Title||"",area:f.Area||"",tipo:f.TipoMovimento||"",rubrica:f.Rubrica||"",fornecedor:f.Fornecedor||"",descricao:f.Descricao||"",valor:parseFloat(f.Valor)||0,dataPrevista:f.DataPrevista||"",ano:parseInt(f.Ano)||0,mes:parseInt(f.Mes)||0,estado:f.Estado||f.TipoMovimento||"",criadoPorEmail:f.CriadoPorEmail||"",criadoPorNome:f.CriadoPorNome||"",dataCriacao:f.DataCriacao||i.createdDateTime||"",observacoes:f.Observacoes||""}});
- isAdmin=ad.value.some(i=>{const f=i.fields||{};return norm(f.EmailAdmin||f.Email||f.Title)===norm(userEmail)});
+ isAdmin=norm(userEmail)===norm(ADMIN_EMAIL);
  areasResponsavel=[...new Set(budgets.filter(b=>norm(b.responsavelEmail)===norm(userEmail)).map(b=>b.area).filter(Boolean))].sort();
  areasPermitidas=isAdmin?[...new Set(budgets.map(b=>b.area).filter(Boolean))].sort():areasResponsavel;
  document.getElementById("user").innerText=`${userName||userEmail}${isAdmin?" · Administrador":""} · ${userEmail}`;
